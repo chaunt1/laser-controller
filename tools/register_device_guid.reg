@@ -1,0 +1,10 @@
+Windows Registry Editor Version 5.00
+
+; Register DeviceInterfaceGUID {FED7004F-CA54-478c-BA6F-E9EFE07066B4}
+; Required by rhothor.dll when device (VID 1525, PID 0007) is installed via Zadig on Windows 10 / Windows 11
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\usbflags\152500070100]
+"DeviceInterfaceGUIDs"=hex(7):7b,00,46,00,45,00,44,00,37,00,30,00,30,00,34,00,\
+  46,00,2d,00,43,00,41,00,35,00,34,00,2d,00,34,00,37,00,38,00,63,00,2d,00,\
+  42,00,41,00,36,00,46,00,2d,00,45,00,39,00,45,00,46,00,45,00,30,00,37,00,\
+  30,00,36,00,36,00,42,00,34,00,7d,00,00,00,00,00

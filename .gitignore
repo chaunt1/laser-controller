@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary SVG test outputs
+*.svg.tmp
+
+# C / C++ build outputs
+*.obj
+*.o
+*.exe
+*.pdb
+
+# IDE / Editor configs
+.vscode/
+.idea/
+*.swp
+*~

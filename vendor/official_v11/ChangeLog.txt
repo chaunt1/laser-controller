@@ -1,0 +1,1055 @@
+
+2025/09/05 v11,0,48,12 
+2025/09/29 v11,0,48,12_v2
+2026/02/25 v11,0,48,12_v3
+
+* Bios : Fix arc / circular interpolation
+* rhothor : Ela-TR8 tune (v2)
+* Bios : Tunestick (v3) 
+
+rhothor.exe v11.0.48.4 / v11.0.48.6 (v2)
+rhothor.dll v11.0.48.10 
+
+BiosPatchCUA32.exe v11.0.48.12
+	CPU1 v11.16.9.0
+	CPU2 v11.22.9.0
+	CPU3 v11.2.8.0
+BiosPatchCUA16.exe v16,12,16,0
+BiosPatchTS.exe v0.0.9.49 / v0.0.9.51 (v3)
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/08/01 v11,0,48,11
+
+* Bios : Ram disk FAT for file fetching lookup
+* rhothor.dll rtSystemSetScale, rtSystemSetRotation
+
+rhothor.exe v11.0.48.4
+rhothor.dll v11.0.48.10
+
+BiosPatchCUA32.exe v11.0.48.11
+	CPU1 v11.16.9.0
+	CPU2 v11.22.8.0
+	CPU3 v11.2.8.0
+BiosPatchCUA16.exe v16,12,16,0
+BiosPatchTS.exe v0.0.9.49
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/04/09 v11,0,48,9
+
+* Bios : split TCP/IP and UDP communication format
+         TCP/IP for main control channel, UDP for observer communication
+         multiaccess TCP/IP and multiple UDP
+* rhothor.dll : timeout communication leads to ERR_HARDWARE, non blocking
+* rhothor.exe : support for new deflector patch 0x041A (quality control)
+* rhothor.exe : support for new elevathor ELA-TR8
+
+rhothor.exe v11.0.48.4
+rhothor.dll v11.0.48.8
+
+BiosPatchCUA32.exe v11.0.46.0
+	CPU1 v11.16.8.0
+	CPU2 v11.22.7.0
+	CPU3 v11.2.8.0
+BiosPatchCUA16.exe v16,12,16,0
+BiosPatchTS.exe v0.0.9.49
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/04/09 v11,0,46,0
+
+* Bios : Backwards compatible oscillator settings with older flash files
+
+rhothor.exe v11.0.45.3
+rhothor.dll v11.0.46.0
+
+BiosPatchCUA32.exe v11.0.46.0
+	CPU1 v11.14.11.0
+	CPU2 v11.21.0.0
+	CPU3 v11.2.8.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/04/01 v11,0,45,11
+
+* Bios : Fix Table control
+* Bios/rhothor : Add tracking error control
+
+rhothor.exe v11.0.45.3
+rhothor.dll v11.0.45.0
+BiosPatchCUA32.exe v11.0.45.12
+	CPU1 v11.14.11.0
+	CPU2 v11.20.9.0
+	CPU3 v11.2.8.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/01/28 v11,0,45,3
+
+* Bios : Fix rtSetLaserTimes
+
+rhothor.exe v11.0.45.1
+rhothor.dll v11.0.45.0
+BiosPatchCUA32.exe v11.0.45.3
+	CPU1 v11.14.11.0
+	CPU2 v11.20.2.0
+	CPU3 v11.2.2.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2025/01/24 v11,0,45,2
+
+* rhothor.dll / Bios : New laser mode "Dual Edge" 
+* minimal frequency 600 Hz
+
+rhothor.exe v11.0.45.1
+rhothor.dll v11.0.45.0
+BiosPatchCUA32.exe v11.0.45.2
+	CPU1 v11.14.11.0
+	CPU2 v11.20.1.0
+	CPU3 v11.2.2.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/11/14 v11,0,44,16
+
+* rhothor.exe : support interrupt commands during script execution
+* rhothor.dll / Bios : support analog +360° rotation over analog control
+
+rhothor.exe v11.0.44.17
+rhothor.dll v11.0.44.9
+BiosPatchCUA32.exe v11.0.44.16
+	CPU1 v11.14.10.0
+	CPU2 v11.19.17.0
+	CPU3 v11.1.17.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/10/10 v11,0,44,15
+
+* rhothor.dll: fix JSON aperture loading
+* rhothor.dll: systemsetio direct broadcast mask
+* rhothor.exe: fix JSON aperture loading
+
+rhothor.exe v11.0.44.16 
+rhothor.dll v11.0.44.8
+BiosPatchCUA32.exe v11.0.44.15
+	CPU1 v11.14.9.0
+	CPU2 v11.19.16.0
+	CPU3 v11.1.17.0
+BiosPatchCUA16.exe v16,12,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/06/20 v11,0,44,14
+
+* BiosPatchCUA32.exe: Z setpoints
+
+rhothor.exe v11.0.44.15 
+rhothor.dll v11.0.44.7
+BiosPatchCUA32.exe v11.0.44.14
+	CPU1 v11.14.8.0
+	CPU2 v11.19.15.0
+	CPU3 v11.1.17.0
+BiosPatchCUA16.exe v16,10,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/06/04 v11,0,44,13
+
+* BiosPatchCUA32.exe: added extra Deflector Matrix rtSetDefl (offs/rot)
+* BiosPatchCUA32.exe: fix gate-off during rtLineToXD chain
+* BiosPatchCUA32.exe: fix analog input for Scale + Rotation combination
+* BiosPatchCUA32.exe: smoother OTF processing
+* Schema: created JSON validation schema
+* Modified start tune window A20 AR180
+
+rhothor.exe v11.0.44.15 
+rhothor.dll v11.0.44.7
+BiosPatchCUA32.exe v11.0.44.13
+	CPU1 v11.14.8.0
+	CPU2 v11.19.14.0
+	CPU3 v11.1.17.0
+BiosPatchCUA16.exe v16,10,16,0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/03/19 v11,0,44,5
+2024/03/26 v11,0,44,5_v2
+2024/03/29 v11,0,44,5_v3
+2024/04/25 v11,0,44,5_v4
+
+* rhothor.exe: tune for both deflectors bios 0x0409 and 0x040f
+* BiosPatch: added rtSetAutomation / rtDoAutomation (seperate analog Z control)
+* rhothor.exe: CYA-A38 autotune feature (v2)
+* rhothor.dll: added rtDecrementCounter function (v2)
+* rhothor.exe: fix tune for RLA-AR180 (v3)
+* rhothor.exe: fix tune A20 fused silica (v4)
+
+rhothor.exe v11.0.44.8 / 11.0.44.9 (v2) / 11.0.44.10 (v3) / 11.0.44.11 (v4) / 
+rhothor.dll v11.0.44.4 / 11.0.44.5 (v2)
+BiosPatch.exe v11.0.44.5
+	CPU1 v11.14.6.0
+	CPU2 v11.19.7.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2024/01/12 v11,0,44,4 
+2024/01/22 v11,0,44,4_v2
+2024/01/26 v11,0,44,4_v3
+
+* rhothor.exe: modified tuning algorithm
+* rhothor.exe: sniffing view
+* rhothor.exe: integrated factory support
+* rhothor.dll: added JSON profile support
+* BiosPatch: bugfix interlocking with IO synchronisation
+* BiosPatch: added interrupt function rtSystemSetOffsXY
+* BiosPatch: added CYA-A38 temp sensor reading with rtQueryDefl function
+* BiosPatch: added power profiling with ArcTo / LineTo / MoveTo / JumpTo
+* rhothor.dll: fix rtTableJog (v2)
+* rhothor.dll: fix JSON profile deflector export (v2)
+* BiosPatch: fix store calibration table: format + resolution indication (v2)
+* rhothor.exe: modified tuning algorithm backwards compatible with deflector 0x0409 (v2/v3)
+
+rhothor.exe v11.0.44.2 / 11.0.44.4 (v2)
+rhothor.dll v11.0.44.1 / 11.0.44.3 (v2)
+BiosPatch.exe v11.0.44.4
+	CPU1 v11.14.4.0 / v11.14.5.0 (v2)
+	CPU2 v11.19.6.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2023/07/20 v11.0.42.0
+
+* BiosPatch: CUA32 vital sign (faster heartbeat)
+* rhothor.exe: show bios version CPU1/CPU2
+
+rhothor.exe v11.0.42.0
+rhothor.dll v11.0.42.0
+BiosPatch.exe v11.0.42.0
+	CPU1 v11.13.0.0
+	CPU2 v11.18.0.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2023/07/18 v11.0.41.9
+
+* BiosPatch: CUA32 vital sign features (alive heartbeat / interlock on FE<>TGT communication error)
+* BiosPatch: XZ and YZ Wobbling modes
+* BiosPatch: improved data exchange synchronisation with deflector
+* rhothor.exe: IO14 - VitalSign configuration (alive heartbeat)
+
+rhothor.exe v11.0.39.5
+rhothor.dll v11.0.41.6
+BiosPatch.exe v11.0.41.9
+	CPU1 v11.12.6.0
+	CPU2 v11.17.7.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2023/06/12 v11.0.41.8
+
+* BiosPatch: fix ethernet update
+* CUA32: Chain process tune
+* CUA32: Z-setpoint as analog output
+
+rhothor.exe v11.0.39.4
+rhothor.dll v11.0.41.6
+BiosPatch.exe v11.0.41.8
+	CPU1 v11.12.5.0
+	CPU2 v11.17.6.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2023/03/20 v11.0.41.5 (v2)
+
+* CUA32 : fix calibration flash store/load
+
+rhothor.exe v11.0.39.2
+rhothor.dll v11.0.41.3 / v11.0.41.4 (v2) 
+BiosPatch.exe v11.0.41.5
+	CPU1 v11.12.2.0
+	CPU2 v11.17.4.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2023/03/06 v11.0.41.4
+
+* CUA32 : zero delay looping and file fetching
+* CUA32 : chain process with color mode
+
+rhothor.exe v11.0.39.2
+rhothor.dll v11.0.41.3
+BiosPatch.exe v11.0.41.4
+	CPU1 v11.12.1.0
+	CPU2 v11.17.4.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2023/01/05 v11.0.41.0
+
+* CUA32 : advanced scanner correction (rtCalcCorr, rtSetCorr, rtSetFiducial)
+* CUA32 : zero overhead deflector communication 
+* CUA32 : on/off timing rtSetLasertimes to 1µs
+* CUA32 : chain process with speed and analog profiling (rtChainHdr, rtChainStep)
+* rhothor.exe : RLA AR640 new motor type (PSD type)
+
+rhothor.exe v11.0.39.0
+rhothor.dll v11.0.41.0
+BiosPatch.exe v11.0.41.0
+	CPU1 v11.11.7.0
+	CPU2 v11.16.2.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/10/27 v11.0.38.8
+
+* CUA32 : wobble power modulation (rtSetWobbleEx, rtSetPowerProfile)
+* CUA32 : wobble speed modulation (rtSetWobbleEx, rtSetPowerProfile)
+* CUA32 : transparent power setting (rtSetPower, rtSetPowerLevels)
+* CUA32 : Fix IO state analog 5 in GATE configuration  
+* rhothor.exe : analog input pull up / pull down selection
+* CUA32 : Fix rtVarBlockFetch 
+* CUA32 : Fix speed 3D vector with larger dZ
+
+rhothor.exe v11.0.38.0
+rhothor.dll v11.0.37.4
+BiosPatch.exe v11.0.38.8
+	CPU1 v11.11.4.0
+	CPU2 v11.14.9.0
+	CPU3 v11.1.17.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2022/08/12 v11.0.37.6
+
+* CUA32 : Fix rtCharDef glyphs
+
+rhothor.exe v11.0.37.3
+rhothor.dll v11.0.37.1
+BiosPatch.exe v11.0.37.6
+	CPU1 v11.11.2.0
+	CPU2 v11.14.6.0
+	CPU3 v11.1.15.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/08/11 v11.0.37.5
+
+* CUA32 : Table target commands using resolver calibration
+* rhothor.exe : improoved RTA tuning
+* rhothor.dll : fix NAN input for rtSetRotation, rtSetScale, rtSpeed (analog control)
+
+rhothor.exe v11.0.37.3
+rhothor.dll v11.0.37.1
+BiosPatch.exe v11.0.37.5
+	CPU1 v11.11.2.0
+	CPU2 v11.14.5.0
+	CPU3 v11.1.15.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/07/11 v11.0.37.4
+
+* CUA32 : Fix hybrid support bug 11,0,37,4
+
+rhothor.exe v11.0.37.0
+rhothor.dll v11.0.37.0
+BiosPatch.exe v11.0.37.4
+	CPU1 v11.11.2.0
+	CPU2 v11.14.3.0
+	CPU3 v11.1.15.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/07/06 v11.0.37.3
+
+* CUA32 : Fix hybrid support bug 11,0,37,3
+
+rhothor.exe v11.0.37.0
+rhothor.dll v11.0.37.0
+BiosPatch.exe v11.0.37.3
+	CPU1 v11.11.2.0
+	CPU2 v11.14.2.0
+	CPU3 v11.1.12.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/07/04 v11.0.37.1
+
+* CUA32 : Fix fifo management FE/TGT 
+* CUA32 : Added Burst FM support for OTF/hybrid + fix calibration speed scaling
+* rhothor.dll : rtResetCalibration for CUA
+* rhothor.dll : fix ELA-TR4-4G tuneset on CUA-XXX
+
+rhothor.exe v11.0.37.0
+rhothor.dll v11.0.37.0
+BiosPatch.exe v11.0.37.1
+	CPU1 v11.11.1.0
+	CPU2 v11.14.0.0
+	CPU3 v11.1.12.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/05/11 v11.0.36.11
+
+* CUA32 : Fix rtSetOffsZ
+* rhothor.exe : tune window RLA
+
+rhothor.exe v11.0.36.16
+rhothor.dll v11.0.36.3
+BiosPatch.exe v11.0.36.11
+	CPU1 v11.10.5.0
+	CPU2 v11.13.10.0
+	CPU3 v11.1.12.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2022/02/19 v11.0.36.7
+2022/03/17 v11.0.36.7_v2
+
+* CUA32 : Fix rtSetWobbleMode
+* CUA32 : Fix config mode Start/Stop IO16
+* rhothor.dll : Fix rtSetWobbleEx for CUA (v2)
+* rhothor.exe : increased scope window y-zoom (v2)
+
+rhothor.exe v11.0.36.11 / v11.0.36.12 (v2)
+rhothor.dll v11.0.36.1 / v11.0.36.3 (v2)
+BiosPatch.exe v11.0.36.7
+	CPU1 v11.10.5.0
+	CPU2 v11.13.6.0
+	CPU3 v11.1.12.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2021/12/23 v11.0.36.5
+
+* CUA32 : Fix CUA32-TGT analog input pull-up
+
+rhothor.exe v11.0.36.11
+rhothor.dll v11.0.36.1
+BiosPatch.exe v11.0.36.5
+	CPU1 v11.10.4.0
+	CPU2 v11.13.5.0
+	CPU3 v11.1.12.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2021/12/23 v11.0.36.4
+2022/02/01 v11.0.36.4_v2
+
+* CUA32 : LLink-11 support
+* CUA32 : Interlock reset for ethernet command reset
+* rhothor.exe : tuning for latest deflector hardware rev (v2)
+
+rhothor.exe v11.0.36.6
+rhothor.dll v11.0.36.1 / v11.0.36.11 (v2)
+BiosPatch.exe v11.0.36.4
+	CPU1 v11.10.4.0
+	CPU2 v11.13.5.0
+	CPU3 v11.1.11.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2021/09/13 v11.0.36.1
+
+* rhothor.exe : tuning window RLA
+* CUA32 : table encoder XY calibration (rtSetResolverCal)
+
+rhothor.exe v11.0.36.1
+rhothor.dll v11.0.36.1
+BiosPatch.exe v11.0.36.1
+	CPU1 v11.10.0.0
+	CPU2 v11.13.1.0
+	CPU3 v11.1.9.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2021/08/13 v11.0.35.10
+
+* rhotor.exe : tuning window RLA
+
+rhothor.exe v11.0.35.14
+rhothor.dll v11.0.35.0
+BiosPatch.exe v11.0.35.3
+	CPU1 v11.9.12.0
+	CPU2 v11.12.16.0
+	CPU3 v11.1.9.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2021/04/29 v11.0.35.3
+2021/05/29 v11.0.35.3_v2
+
+* rhothor.exe: deflector classes
+* CUA32: lissajous wobble support
+
+rhothor.exe v11.0.35.3 / 11.0.35.5 (v2)
+rhothor.dll v11.0.35.0
+BiosPatch.exe v11.0.35.3
+	CPU1 v11.9.9.0
+	CPU2 v11.12.10.0
+	CPU3 v11.1.9.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2021/04/13 v11.0.35.0
+
+* CUA32 : tuning window RLA-A30
+* rhothor.dll : rtGetVersion fix
+
+rhothor.exe v11.0.35.0
+rhothor.dll v11.0.35.0
+BiosPatch.exe v11.0.35.0
+	CPU1 v11.9.9.0
+	CPU2 v11.12.10.0
+	CPU3 v11.1.9.0
+Config.exe 9.48.2.6
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/12/18 v11.0.34.14
+2021/01/25 v11.0.34.14_v2
+2021/01/26 v11.0.34.14_v3
+
+* CUA32 : tuning window A30 narrow
+* rhothor.exe : tuning window CYC-A50 (v2)
+* CUA-XXX : fix random gate high on boot (v3)
+* CUA-XXX : fix glitch on gate when long burst signals (v3)
+* CUA-XXX : fix execution time long sleeps (v3)
+
+rhothor.exe v11.0.34.7
+rhothor.dll v11.0.34.1 / 11.0.34.2 (v3)
+BiosPatch.exe v11.0.34.14
+	CPU1 v11.9.8.0
+	CPU2 v11.12.8.0
+	CPU3 v11.1.9.0
+Config.exe v9.48.2.5 / 9.48.2.6 (v3)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/10/28 v11.0.34.10
+2020/11/05 v11.0.34.10_v2
+
+* CUA32 : fix Calibration routine Z
+* rhothor.exe : altered tune window RLA
+
+rhothor.exe v11.0.34.3 / 11.0.34.4 (v2)
+rhothor.dll v11.0.34.1
+BiosPatch.exe v11.0.34.10
+	CPU1 v11.9.7.0
+	CPU2 v11.12.6.011
+	CPU3 v11.1.9.0
+Config.exe v9.48.2.4
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/10/27 v11.0.34.9
+
+* CUA32 : modified Tune-sets deflectors
+* CUA32 : modified Calibration routines on hardware
+* CUA32 : fix 16-bit mode ELA-TR4 
+
+rhothor.exe v11.0.34.3
+rhothor.dll v11.0.34.1
+BiosPatch.exe v11.0.34.9
+	CPU1 v11.9.6.0
+	CPU2 v11.12.6.0
+	CPU3 v11.1.9.0
+Config.exe v9.48.2.4
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/10/20 v11.0.34.7
+
+* CUA32 : support burst mode with tickle pulse with different frequencies
+* CUA32 : support Osc 1/2 mode with tickle pulse with different frequencies
+* rhothor.exe : rename IO17 "CO2" to "Oscillator 1/2"
+* rhothor.exe : rename IO17 "Burst FM" to "Osc3 speed modulation period"
+* rhothor.exe : rename IO6 "CO2 Sync" to "Oscillator 3"
+
+rhothor.exe v11.0.34.2
+rhothor.dll v11.0.34.1
+BiosPatch.exe v11.0.34.7
+	CPU1 v11.9.4.0
+	CPU2 v11.12.4.0
+	CPU3 v11.1.9.0
+Config.exe v9.48.2.4
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/10/19 v11.0.34.6
+
+* CUA32 : support burst mode with tickle pulse (safe resynced oscillator)
+* CUA32 : fix table jog on another target
+* CUA32 : added MAC addressing
+* Config.exe : fix ethernet command file upload (PCN191101) 
+* rhothor.exe : fix multi target / deflector status
+* rhothor.exe : updated tune windows
+
+rhothor.exe v11.0.34.1
+rhothor.dll v11.0.34.0
+BiosPatch.exe v11.0.34.6
+	CPU1 v11.9.4.0
+	CPU2 v11.12.3.0
+	CPU3 v11.1.8.0
+Config.exe v9.48.2.4
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/09/08 v11.0.33.0
+
+* CUA32 : support analog input for speed/scale/rotate
+* CUA32 : support deflector calibration
+
+rhothor.exe v11.0.33.1
+rhothor.dll v11.0.33.0
+BiosPatch.exe v11.0.31.5
+	CPU1 v11.8.4.0
+	CPU2 v11.12.0.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2020/06/09 v11.0.31.5
+
+* CUA32 : fix tuning 2G deflectors (16bit interfacing)
+* CUA32 : ethernet command for speed changing    
+
+rhothor.exe v11.0.31.1
+rhothor.dll v11.0.31.1
+BiosPatch.exe v11.0.31.5
+	CPU1 v11.8.2.0
+	CPU2 v11.11.5.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2020/03/16 v11.0.31.3
+
+* CUA32 : improoved stop distance rtTableLimitSwitches with rtSetWhileIO    
+
+rhothor.exe v11.0.31.1
+rhothor.dll v11.0.31.1
+BiosPatch.exe v11.0.31.3
+	CPU1 v11.8.0.0
+	CPU2 v11.11.0.3
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2020/03/03 v11.0.31.2
+
+* CUA32 : bugfix rtTableLimitSwitches with rtTableMove commands   
+
+rhothor.exe v11.0.31.1
+rhothor.dll v11.0.31.1
+BiosPatch.exe v11.0.31.2
+	CPU1 v11.8.0.0
+	CPU2 v11.11.0.2
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2020/02/26 v11.0.31.1
+
+* rhothor : added tuning RLA-AR180 mrad tuning window
+* CUA32 : 16-bit deflectors 2G(+) support
+* rhothor : added LLink-09 support
+* CUA32 : bugfix bytes added to flash job donwload
+* CUA32 : bugfix System Table move on both master and slave   
+
+rhothor.exe v11.0.31.0
+rhothor.dll v11.0.31.1
+BiosPatch.exe v11.0.31.1
+	CPU1 v11.8.0.0
+	CPU2 v11.11.0.1
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2020/01/20 v11.0.30.0_2
+
+* rhothor : fix motor type ELA-TR4-G3
+
+rhothor.exe v11.0.30.2
+rhothor.dll v11.0.29.2
+BiosPatch.exe v11.0.30.0
+	CPU1 v11.8.0.0
+	CPU2 v11.10.0.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2020/01/14 v11.0.30.0
+
+* CUA32 : fix sharing IO states - unaddressed IO broadcast
+* rhothor : add tuning RLA with A35 SiC mirror - new tuning concept for RLA
+
+rhothor.exe v11.0.29.2
+rhothor.dll v11.0.29.2
+BiosPatch.exe v11.0.30.0
+	CPU1 v11.8.0.0
+	CPU2 v11.10.0.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2019/12/19 v11.0.29.1:
+
+* CUA32 : fix idle state race condition rtGetStatus after rtListClose
+* CUA32 : Sharing IO State / End limit switches on other target possible
+
+
+rhothor.exe v11.0.29.1
+rhothor.dll v11.0.29.1
+BiosPatch.exe v11.0.29.1
+	CPU1 v11.7.1.0
+	CPU2 v11.9.1.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+2019/12/5 v11.0.28.6:
+
+rhothor.exe v11.0.28.4
+rhothor.dll v11.0.28.0
+BiosPatch.exe v11.0.28.6
+	CPU1 v11.6.1.0
+	CPU2 v11.8.6.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
+* CUA32 : reviewed on-the-fly scanner compensation
+* CUA32 : lower table jog output frequency 1.5 kHz
+* rhothor.exe : temperature support (new chip hardware version)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/11/15 v11.0.28.4:
+
+rhothor.exe v11.0.28.3
+rhothor.dll v11.0.28.0
+BiosPatch.exe v11.0.28.4
+	CPU1 v11.6.1.0
+	CPU2 v11.8.4.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.2
+
+* rhothor.exe : added ip list autosave
+* rhothor.exe : modified beacon integration
+* Config.exe : PCN191101 - obsolete flash component (CUA-XXX)
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/09/11 v11.0.28.2:
+
+rhothor.exe v11.0.28.0
+rhothor.dll v11.0.28.0
+BiosPatch.exe v11.0.28.2
+	CPU1 v11.6.1.0
+	CPU2 v11.8.2.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.0
+
+* CUA32 : fix hybrid motion illegal vector length when hitting stop window
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/09/06: v11.0.28.1:
+
+rhothor.exe v11.0.28.0
+rhothor.dll v11.0.28.0
+BiosPatch.exe v11.0.28.1
+	CPU1 v11.6.1.0
+	CPU2 v11.8.1.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.0
+
+* CUA32 : fix calling rtTableMoveTo/rtTableMoveTo3D in hybrid state
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/08/14: v11.0.27.1:
+
+rhothor.exe v11.0.27.2
+rhothor.dll v11.0.27.2
+BiosPatch.exe v11.0.27.1
+	CPU1 v11.5.1.0
+	CPU2 v11.7.1.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.0
+
+* rhothor.exe : Integrated Beacon-CU16 multicell support
+* CUA32 : Ethernet commands (35-36-41-50-51)
+* CUA32 : rtSystemSetWhileIO - asynchronous Interlock setting
+* CUA32 : rtSystemSetTableSwitches, rtSystemTableMove, rtSystemTableMoveRel for jogging
+* CUA32 : Internal hybrid motion algorithm changed to allow extra functions
+* CUA32 : rtSetTableSpeed to modify speed on hybrid process
+* CUA32 : rtPowerProfileTo - power modulation IO5 on line
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/06/13: v11.0.26.7:
+
+rhothor.exe v11.0.26.1
+rhothor.dll v11.0.26.1
+BiosPatch.exe v11.0.26.7
+	CPU1 v11.4.5.0
+	CPU2 v11.6.5.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.0
+
+* CUA32: Hybrid control fix 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+
+2019/05/24: v11.0.26.5:
+
+rhothor.exe v11.0.26.1
+rhothor.dll v11.0.26.1
+BiosPatch.exe v11.0.26.5
+	CPU1 v11.4.5.0
+	CPU2 v11.6.3.0
+	CPU3 v11.1.7.0
+Config.exe v9.48.2.0
+
+
+* CUA32: rtMoveToXD/rtLineToXD 6Axis motion control
+* CUA32: rtTableJog support for infinite axis
+* CUA32: Speedmod fix 
+* rhothor.exe : Modified UI / support for beacon - table
+* rhothor.exe : New editor
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+
+2019/03/28: v11.0.25.2:
+
+rhothor.exe v11.0.25.0
+rhothor.dll v11.0.25.0
+BiosPatch.exe v11.0.25.2
+	CPU1 v11.4.2.0
+	CPU2 v11.5.2.0
+	CPU3 v11.1.6.0
+Config.exe v9.48.2.0
+
+* rhothor.exe : Standard tunings
+* CUA32: Ethernet commands (8-21-22-24-25-26-27-28-29-30-31-32-33-34)
+* CUA32: rtAcceptData(long) for Variable back and front buffer swap
+* CUA32: rtSetWhileIO(0,8388608) for overcurrent Interlock
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/02/18: v11.0.24.1:
+
+rhothor.exe v11.0.16.7
+rhothor.dll v11.0.23.0
+BiosPatch.exe v11.0.24.1
+	CPU1 v11.3.3.0
+	CPU2 v11.4.1.0
+	CPU3 v11.1.6.0
+Config.exe v9.48.2.0
+
+* CUA32: Biospatch : extra security features for ethernet update
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/02/18: v11.0.24.0:
+
+rhothor.exe v11.0.16.7
+rhothor.dll v11.0.23.0
+BiosPatch.exe v11.0.24.0
+	CPU1 v11.3.2.0
+	CPU2 v11.4.1.0
+	CPU3 v11.1.5.0
+Config.exe v9.48.2.0
+
+* CUA32: Encoder polling : edge separation > 950 ns
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+2019/01/16: v11.0.23.0:
+
+rhothor.exe v11.0.16.7
+rhothor.dll v11.0.23.0
+BiosPatch.exe v11.0.23.0
+	CPU1 v11.3.2.0
+	CPU2 v11.4.0.0
+	CPU3 v11.1.4.0
+Config.exe v9.48.2.0
+
+* CUA32: Add rtSetWobbleMode
+* CUA32: Change rtSetRotation / rtSetOffset behaviour
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/12/18: v11.0.21.9:
+
+rhothor.exe v11.0.16.4
+rhothor.dll v11.0.20.0
+BiosPatch.exe v11.0.21.6
+	CPU1 v11.3.2.0
+	CPU2 v11.3.10.0
+	CPU3 v11.1.4.0
+Config.exe v9.48.2.0
+
+*CUA32: Fix noise on table regulation
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/12/17: v11.0.21.6:
+
+rhothor.exe v11.0.16.4
+rhothor.dll v11.0.20.0
+BiosPatch.exe v11.0.21.6
+	CPU1 v11.3.2.0
+	CPU2 v11.3.7.0
+	CPU3 v11.1.4.0
+Config.exe v9.48.2.0
+
+*CUA32: Fix Calibration routines
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/11/20: v11.0.20.0:
+
+rhothor.exe v11.0.16.4
+rhothor.dll v11.0.20.0
+BiosPatch.exe v11.0.20.0
+	CPU1 v11.3.0.0
+	CPU2 v11.3.0.0
+	CPU3 v11.1.3.0
+Config.exe v9.48.2.0
+
+* CUA32: Fix rtSetCfgIO accept higher order bits (warning : need to call all 1-17)
+* CUA32: Fix Lower table speed (min 101 mm/sec)
+* CUA32: Added rtSetFieldSizeZ
+* CUA32: new Calibration internal processing routines, including clipping
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/11/15: v11.0.18.17:
+
+rhothor.exe v11.0.16.2
+rhothor.dll v11.0.19.0
+BiosPatch.exe v11.0.18.17
+	CPU1 v11.2.6.0
+	CPU2 v11.2.10.1
+	CPU3 v11.1.3.0
+Config.exe v9.48.2.0
+
+* CUA32: Pulse speed modulation - Burst FM (Note valid range : Period*2 < Scannerdelay) 
+* CUA32: rtSetLaserTimes - Check LaserOff >= LaserOnDelay && LaserOnDelay>0
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/10/03: v11.0.18.1:
+
+rhothor.exe v11.0.16.0
+rhothor.dll v11.0.18.1
+BiosPatch.exe v11.0.18.1
+	CPU1 v11.2.5.0
+	CPU2 v11.2.9.1
+	CPU3 v11.1.2.2
+Config.exe v9.48.2.0
+
+* CUA32: Add rtSetTableMaxSpeed(Nr, Speed), defines max table axis pulse freq (<500kHz) + pulse width
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2018/09/20: v11.0.17.12:
+
+rhothor.exe v11.0.16.0
+rhothor.dll v11.0.17.2
+BiosPatch.exe v11.0.17.12
+	CPU1 v11.2.5.0
+	CPU2 v11.2.8.14
+	CPU3 v11.1.2.2
+Config.exe v9.48.2.0
+
+* CUA32: Add rtTableJumpTo3D (linear ramping, acceleration time = 2 * table trackdelay)
+* CUA32: Fix rtSetCfgIO accept higher order bits
+* CUA32: Change table axis constant pulse width to 1µs, maximum 500 kHz
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2019/09/06: v11.0.17.2:
+
+rhothor.exe v11.0.15.0
+rhothor.dll v11.0.17.1
+BiosPatch.exe v11.0.17.2
+	CPU1 v11.2.5.0
+	CPU2 v11.2.8.2
+	CPU3 v11.1.2.0
+Config.exe v9.48.2.0
+
+* CUA32: Implement rtGetCanLink(*Addres, *Value)
+* CUA32: Implement rtOpenCanLink(Baudrate)
+* CUA32: Implement rtScanCanLink(Address, Node, Index, SubIndex)
+* CUA32: Implement rtSetCanLink(Node, Index, SubIndex, *Data)
+* CUA32: Implement rtWaitCanLink(Address, Value, Mask)
+* CUA32: Add pulse compensation, needs adjacent rtPulse commands 
+* CUA32: Fix table accelleration

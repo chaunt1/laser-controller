@@ -1,0 +1,37 @@
+{
+  "profile_name": "Standard_2D",
+  "serial_number": 0,
+  "hardware": {
+    "manufacturer": "Newson Engineering NV",
+    "regulator_board": "RT-CU",
+    "drive_stage": "RT-DS",
+    "interface": "USB 2.0 (WinUSB)",
+    "operating_mode": "Integrated Control"
+  },
+  "xy_axis": {
+    "system": "X+Y",
+    "scanner_type": "RTSN - AR800",
+    "aperture_mm": 10,
+    "optical_scan_angle_mrad": 800,
+    "scanner_delay_us": 70,
+    "field_size_mm": 130.0,
+    "max_speed_mm_s": 5000,
+    "track_mode": "normal",
+    "mirror_x": false,
+    "mirror_y": false,
+    "swap_xy": false
+  },
+  "z_axis": {
+    "enabled": false,
+    "scanner_type": "None",
+    "field_size_mm": 0.0,
+    "max_speed_mm_s": 0,
+    "mirror_z": false
+  },
+  "laser_timing": {
+    "gate_on_delay_us": 50,
+    "gate_off_delay_us": 50,
+    "min_gate_period_us": 10,
+    "pulse_bulge_factor": 1.0
+  }
+}

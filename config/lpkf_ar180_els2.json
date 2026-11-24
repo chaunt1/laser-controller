@@ -1,0 +1,44 @@
+{
+  "profile_name": "LPKF",
+  "serial_number": 4281,
+  "hardware": {
+    "manufacturer": "Newson Engineering NV",
+    "regulator_board": "RT-CU (Dual Axis + Extension Z)",
+    "drive_stage": "RT-DS",
+    "interface": "USB 2.0 (WinUSB VID 0x1525, PID 0x0007)",
+    "operating_mode": "Integrated Control"
+  },
+  "xy_axis": {
+    "system": "X+Y",
+    "scanner_type": "RTSN - AR180",
+    "aperture_mm": 10,
+    "optical_scan_angle_mrad": 180,
+    "scanner_delay_us": 60,
+    "field_size_mm": 201.65,
+    "max_speed_mm_s": 6000,
+    "track_mode": "normal",
+    "mirror_x": false,
+    "mirror_y": false,
+    "swap_xy": false
+  },
+  "z_axis": {
+    "enabled": true,
+    "scanner_type": "EL - S2",
+    "device_name": "ELEVAthor Dynamic Focusing Unit",
+    "field_size_mm": 147.0,
+    "max_speed_mm_s": 4000,
+    "mirror_z": false
+  },
+  "laser_timing": {
+    "gate_on_delay_us": 50,
+    "gate_off_delay_us": 50,
+    "min_gate_period_us": 10,
+    "pulse_bulge_factor": 1.0
+  },
+  "digital_io": {
+    "io1_to_io4": "RS-485 Differential I/O or XY2-100",
+    "io5": "Laser Gate / Oscillator 1",
+    "io6": "Laser Gate / Oscillator 2",
+    "io7": "Laser External Trigger / Oscillator 3 (Synchronized with Gate)"
+  }
+}

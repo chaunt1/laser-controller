@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhothor Laser Deflection Controller</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #181b24;
+    --card-border: #262b3a;
+    --primary: #3b82f6;
+    --accent: #ff3366;
+    --laser-jump: #00d8d6;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: transparent;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+    font-size: 13px;
+    padding: 8px;
+  }
+  .app-container {
+    display: grid;
+    grid-template-columns: 310px 1fr;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  @media (max-width: 700px) {
+    .app-container { grid-template-columns: 1fr; }
+  }
+  .header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+  .title-group { display: flex; align-items: center; gap: 8px; }
+  .logo { font-size: 16px; font-weight: 800; letter-spacing: 1px; color: #60a5fa; }
+  .badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .panel {
+    background: #12141c;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 10px;
+  }
+  .panel-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .prop-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+  .prop-label { color: var(--text-muted); }
+  .prop-val { font-weight: 600; color: #fff; }
+  .io-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 6px;
+  }
+  .io-pin {
+    background: #1e2230;
+    text-align: center;
+    padding: 4px 0;
+    border-radius: 4px;
+    font-size: 10px;
+    border: 1px solid var(--card-border);
+    transition: all 0.2s;
+  }
+  .io-pin.active {
+    background: rgba(255, 51, 102, 0.2);
+    border-color: var(--accent);
+    color: #ff3366;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
+  }
+  .canvas-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  button {
+    background: #222736;
+    color: var(--text);
+    border: 1px solid #333b50;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  button:hover {
+    background: #2d354a;
+    border-color: #4b5563;
+    color: #fff;
+  }
+  button.primary {
+    background: #2563eb;
+    border-color: #3b82f6;
+    color: #fff;
+  }
+  button.primary:hover {
+    background: #1d4ed8;
+  }
+  .canvas-wrapper {
+    position: relative;
+    background: #090a0f;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    overflow: hidden;
+    height: 380px;
+  }
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .overlay-stats {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(15, 17, 23, 0.85);
+    border: 1px solid var(--card-border);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 11px;
+    display: flex;
+    gap: 12px;
+  }
+  .legend {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    align-items: center;
+    color: var(--text-muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-group">
+      <span class="logo">RHOTHOR™</span>
+      <span style="color:var(--text-muted);">| Galvo Laser Controller</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span style="color:var(--text-muted); font-size:11px;">Profile: <strong>LPKF (SN: 4281)</strong></span>
+      <span class="badge">INTEGRATED CONTROL</span>
+    </div>
+  </div>
+
+  <!-- Sidebar / Parameters -->
+  <div class="sidebar">
+    <div class="panel">
+      <div class="panel-title">XY Scanner Setup <span>RTSN-AR180</span></div>
+      <div class="prop-row"><span class="prop-label">Working Field:</span><span class="prop-val">201.65 mm</span></div>
+      <div class="prop-row"><span class="prop-label">Max Speed:</span><span class="prop-val">6000 mm/s</span></div>
+      <div class="prop-row"><span class="prop-label">Scanner Delay:</span><span class="prop-val">60 µs</span></div>
+      <div class="prop-row"><span class="prop-label">Track Mode:</span><span class="prop-val">Normal</span></div>
+      <div class="prop-row"><span class="prop-label">Optical Angle:</span><span class="prop-val">180 mrad</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Z Dynamic Focus <span>EL - S2</span></div>
+      <div class="prop-row"><span class="prop-label">Z Status:</span><span class="prop-val" style="color:var(--success);">ACTIVE</span></div>
+      <div class="prop-row"><span class="prop-label">Focal Range:</span><span class="prop-val">147.0 mm</span></div>
+      <div class="prop-row"><span class="prop-label">Z Max Speed:</span><span class="prop-val">4000 mm/s</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Laser & Hardware I/O</div>
+      <div class="prop-row"><span class="prop-label">Gate On Delay:</span><span class="prop-val">50 µs</span></div>
+      <div class="prop-row"><span class="prop-label">Gate Off Delay:</span><span class="prop-val">50 µs</span></div>
+      <div style="margin-top:6px; font-size:11px; color:var(--text-muted);">Digital IO (RS485 / Gate / OSC):</div>
+      <div class="io-grid">
+        <div class="io-pin" id="io1">IO1</div>
+        <div class="io-pin" id="io2">IO2</div>
+        <div class="io-pin" id="io3">IO3</div>
+        <div class="io-pin" id="io4">IO4</div>
+        <div class="io-pin" id="io5">IO5</div>
+        <div class="io-pin" id="io6">IO6</div>
+        <div class="io-pin active" id="io7">IO7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Canvas / Motion View -->
+  <div class="canvas-panel">
+    <div class="toolbar">
+      <button class="primary" onclick="drawPattern('square')">Square</button>
+      <button onclick="drawPattern('circle')">Circle</button>
+      <button onclick="drawPattern('cross')">Crosshair</button>
+      <button onclick="drawPattern('grid')">Grid 5x5</button>
+      <button onclick="drawPattern('star')">Star</button>
+      <button onclick="clearCanvas()">Clear</button>
+      <div class="legend" style="margin-left:auto;">
+        <div class="legend-item"><span class="dot" style="background:var(--accent);"></span> Laser Mark</div>
+        <div class="legend-item"><span class="dot" style="background:var(--laser-jump);"></span> Galvo Jump</div>
+      </div>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="galvoCanvas" width="560" height="380"></canvas>
+      <div class="overlay-stats">
+        <span>X: <strong id="valX">0.00</strong> mm</span>
+        <span>Y: <strong id="valY">0.00</strong> mm</span>
+        <span>GATE: <strong id="valGate" style="color:#64748b;">OFF</strong></span>
+        <span>DIST: <strong id="valDist">0.0</strong> mm</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('galvoCanvas');
+const ctx = canvas.getContext('2d');
+const fieldMm = 201.65;
+let path = [];
+let animProgress = 0;
+let totalMarkDist = 0;
+let totalJumpDist = 0;
+
+function toCanvas(x, y) {
+  const scale = Math.min(canvas.width, canvas.height) / (fieldMm * 1.15);
+  const cx = canvas.width / 2 + x * scale;
+  const cy = canvas.height / 2 - y * scale;
+  return { x: cx, y: cy };
+}
+
+function drawBackground() {
+  ctx.fillStyle = '#090a0f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Field boundary
+  const half = fieldMm / 2;
+  const p1 = toCanvas(-half, half);
+  const p2 = toCanvas(half, -half);
+  ctx.strokeStyle = '#1e2230';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(p1.x, p1.y, p2.x - p1.x, p2.y - p1.y);
+
+  // Center Crosshair
+  ctx.strokeStyle = '#1a1f2e';
+  ctx.setLineDash([3, 3]);
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 2, p1.y);
+  ctx.lineTo(canvas.width / 2, p2.y);
+  ctx.moveTo(p1.x, canvas.height / 2);
+  ctx.lineTo(p2.x, canvas.height / 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function clearCanvas() {
+  path = [];
+  totalMarkDist = 0;
+  totalJumpDist = 0;
+  drawBackground();
+  updateStats(0, 0, false, 0);
+}
+
+function addCmd(type, x, y) {
+  path.push({ type, x, y });
+}
+
+function drawPattern(name) {
+  clearCanvas();
+  let size = 60;
+  if (name === 'square') {
+    let h = size / 2;
+    addCmd('JUMP', -h, -h);
+    addCmd('LINE', h, -h);
+    addCmd('LINE', h, h);
+    addCmd('LINE', -h, h);
+    addCmd('LINE', -h, -h);
+  } else if (name === 'circle') {
+    let r = size / 2;
+    addCmd('JUMP', r, 0);
+    for (let i = 1; i <= 36; i++) {
+      let rad = (i * 10) * Math.PI / 180;
+      addCmd('LINE', r * Math.cos(rad), r * Math.sin(rad));
+    }
+  } else if (name === 'cross') {
+    let h = size / 2;
+    addCmd('JUMP', -h, 0);
+    addCmd('LINE', h, 0);
+    addCmd('JUMP', 0, -h);
+    addCmd('LINE', 0, h);
+  } else if (name === 'grid') {
+    let step = size / 4;
+    let h = size / 2;
+    for (let i = 0; i <= 4; i++) {
+      let c = -h + i * step;
+      addCmd('JUMP', -h, c); addCmd('LINE', h, c);
+      addCmd('JUMP', c, -h); addCmd('LINE', c, h);
+    }
+  } else if (name === 'star') {
+    let r1 = 35, r2 = 15;
+    for (let i = 0; i < 10; i++) {
+      let r = (i % 2 === 0) ? r1 : r2;
+      let angle = (i * 36 - 90) * Math.PI / 180;
+      let x = r * Math.cos(angle);
+      let y = r * Math.sin(angle);
+      if (i === 0) addCmd('JUMP', x, y);
+      else addCmd('LINE', x, y);
+    }
+    addCmd('LINE', 0, 35);
+  }
+  animate();
+}
+
+let animIndex = 0;
+function animate() {
+  if (path.length === 0) return;
+  drawBackground();
+  
+  let curX = 0, curY = 0;
+  let dist = 0;
+
+  for (let i = 0; i < path.length; i++) {
+    const cmd = path[i];
+    const p1 = toCanvas(curX, curY);
+    const p2 = toCanvas(cmd.x, cmd.y);
+    const d = Math.hypot(cmd.x - curX, cmd.y - curY);
+    dist += d;
+
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    if (cmd.type === 'LINE') {
+      ctx.strokeStyle = '#ff3366';
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = '#ff3366';
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.strokeStyle = 'rgba(0, 216, 214, 0.5)';
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([3, 3]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    curX = cmd.x;
+    curY = cmd.y;
+  }
+
+  const last = path[path.length - 1];
+  updateStats(last.x, last.y, last.type === 'LINE', dist);
+}
+
+function updateStats(x, y, gate, dist) {
+  document.getElementById('valX').textContent = x.toFixed(2);
+  document.getElementById('valY').textContent = y.toFixed(2);
+  const gateEl = document.getElementById('valGate');
+  gateEl.textContent = gate ? 'ON' : 'OFF';
+  gateEl.style.color = gate ? '#ff3366' : '#64748b';
+  document.getElementById('valDist').textContent = dist.toFixed(1);
+}
+
+// Initial default pattern
+drawPattern('square');
+</script>
+</body>
+</html>

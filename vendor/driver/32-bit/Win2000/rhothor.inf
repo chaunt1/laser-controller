@@ -1,0 +1,55 @@
+; Installation file for nwsn bulk driver
+; Copyright (C) 2004 by Newson Engineering NV
+; All rights reserved
+
+[Version]
+Signature=$CHICAGO$
+Class=USB
+ClassGUID={36FC9E60-C465-11CF-8056-444553540000}
+Provider=%NEWSON%
+DriverVer=11/08/2006, 1.0.0.0
+
+;------------------------------------------------------------------------------
+;  Standard INF sections
+;------------------------------------------------------------------------------
+
+[Manufacturer]
+%MFGNAME%=DeviceList
+
+[DestinationDirs]
+DefaultDestDir=10,System32\Drivers
+
+[DeviceList]
+%DESCRIPTION%=DriverInstall,USB\VID_1525&PID_0007
+
+
+;------------------------------------------------------------------------------
+;  Windows 2000 Sections
+;------------------------------------------------------------------------------
+
+[DriverInstall.ntx86]
+CopyFiles=DriverCopyFiles
+
+[DriverCopyFiles]
+nwsnbulk64.sys,,,2
+
+[DriverInstall.ntx86.Services]
+AddService=NWSNBULK64,2,DriverService
+
+[DriverService]
+DisplayName    = %NWSNBULK64.SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 2                  ; SERVICE_AUTO_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary=%10%\system32\drivers\nwsnbulk64.sys
+
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+
+[Strings]
+NEWSON="Newson Engineering"
+MFGNAME="Newson Engineering"
+DESCRIPTION="NwsnBulk64.Sys for rhothor v7.*.*.*"
+NWSNBULK.SvcDesc="NwsnBulk64.Sys for rhothor v7.*.*.*"

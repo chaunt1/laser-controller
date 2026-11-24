@@ -1,0 +1,104 @@
+; Installation file for newson devices on 64 bit OS using WinUSB driver
+; Copyright (C) 2012 by Newson Engineering NV
+; All rights reserved
+
+[Version]
+Signature = "$Windows NT$"
+Class = NewsonDeviceClass
+ClassGUID = {F57AF69C-8590-4b07-8907-0FE43DC18CBE}
+Provider = %ProviderName%
+DriverVer = 10/03/2012,1.0.0.1
+
+; ================== Class section ==================
+
+[ClassInstall32]
+Addreg=NewsonDeviceClassReg
+
+[NewsonDeviceClassReg]
+HKR,,,,%ClassName%
+HKR,,Icon,,"-20"
+
+; ========== Manufacturer/Models sections ===========
+
+[Manufacturer]
+%ProviderName% = NewsonDevice_WinUSB,NTx86,NTamd64,NTia64
+
+[NewsonDevice_WinUSB.NTx86]
+%USB\NewsonDevice.DeviceDesc% =NWSN_Install, USB\VID_1525&PID_0008
+
+[NewsonDevice_WinUSB.NTamd64]
+%USB\NewsonDevice.DeviceDesc% =NWSN_Install, USB\VID_1525&PID_0008
+
+[NewsonDevice_WinUSB.NTia64]
+%USB\NewsonDevice.DeviceDesc% =NWSN_Install, USB\VID_1525&PID_0008
+
+; =================== Installation ===================
+
+[NWSN_Install]
+Include=winusb.inf
+Needs=WINUSB.NT
+
+[NWSN_Install.Services]
+Include=winusb.inf
+AddService=WinUSB,0x00000002,WinUSB_ServiceInstall
+
+[WinUSB_ServiceInstall]
+DisplayName     = %WinUSB_SvcDesc%
+ServiceType     = 1
+StartType       = 3
+ErrorControl    = 1
+ServiceBinary   = %12%\WinUSB.sys
+
+[NWSN_Install.Wdf]
+KmdfService=WINUSB, WinUsb_Install
+
+[WinUSB_Install]
+KmdfLibraryVersion=1.9
+
+[NWSN_Install.HW]
+AddReg=Dev_AddReg
+
+[Dev_AddReg]
+HKR,,DeviceInterfaceGUIDs,0x10000,"{FED7004F-CA54-478c-BA6F-E9EFE07066B4}"
+
+[NWSN_Install.CoInstallers]
+AddReg=CoInstallers_AddReg
+CopyFiles=CoInstallers_CopyFiles
+
+[CoInstallers_AddReg]
+HKR,,CoInstallers32,0x00010000,"WdfCoInstaller01009.dll,WdfCoInstaller","WinUSBCoInstaller2.dll"
+
+[CoInstallers_CopyFiles]
+WinUSBCoInstaller2.dll
+WdfCoInstaller01009.dll
+
+[DestinationDirs]
+CoInstallers_CopyFiles=11
+
+; ================= Source Media Section =====================
+;[7]
+
+[SourceDisksNames]
+1 = %DISK_NAME%,,,\x86
+2 = %DISK_NAME%,,,\amd64
+3 = %DISK_NAME%,,,\ia64
+
+[SourceDisksFiles.x86]
+WinUSBCoInstaller2.dll=1
+WdfCoInstaller01009.dll=1
+
+[SourceDisksFiles.amd64]
+WinUSBCoInstaller2.dll=2
+WdfCoInstaller01009.dll=2
+
+[SourceDisksFiles.ia64]
+WinUSBCoInstaller2.dll=3
+WdfCoInstaller01009.dll=3
+; =================== Strings ===================
+
+[Strings]
+ProviderName="Newson Engineering"
+USB\NewsonDevice.DeviceDesc="Beacon"
+WinUSB_SvcDesc = "WinUSB Driver Service for Beacon Device"
+DISK_NAME="USB Device Install Disk"
+ClassName="Newson USB Devices"

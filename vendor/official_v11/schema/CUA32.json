@@ -1,0 +1,328 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://newson.be/Schemas/2024/CUA32.json",
+    "type": "object",
+    "title": "CUA32 Profile JSON Schema",
+    "description": "Schema for CUA32 JSON Profiles",
+    "properties": {
+        "FE": {
+            "type": "object",
+            "title": "FE settings",
+            "properties": {
+                "BIOS": {
+                    "$ref": "#/defs/BiosVersion"
+                },
+                "USB_ID": {
+                    "type": "string",
+                    "maxLength" : 64
+                },
+                "IP": {
+                    "type": "string",
+                    "format": "ipv4"
+                }
+            }
+        },
+        "TGT": {
+            "type": "array",
+            "minItems": 8,
+            "maxItems": 8,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "MAPPED": {
+                        "$ref": "#/defs/TargetAddress"
+                    },
+                    "BIOS": {
+                        "$ref": "#/defs/BiosVersion"
+                    },
+                    "DEFL1": {
+                        "$ref": "#/defs/DeflectorDescriptor"
+                    },
+                    "DEFL2": {
+                        "$ref": "#/defs/DeflectorDescriptor"
+                    },
+                    "DEFL3": {
+                        "$ref": "#/defs/DeflectorDescriptor"
+                    },
+                    "XY_FIELD_SIZE": {
+                        "type": "number",
+                        "minium": 0
+                    },
+                    "XY_CAL_SIZE": {
+                        "type": "number",
+                        "minium": 0
+                    },
+                    "XY_CAL_RES": {
+                        "type": "string",
+                        "enum": [ "16 bit table", "18 bit table" ]
+                    },
+                    "XY_SP_FILTER": {
+                        "type": "string",
+                        "enum": [ "None", "Sharp", "Normal", "Smooth" ]
+                    },
+                    "XY_DEFL_DELAY": {
+                        "type": "integer"
+                    },
+                    "Z_FIELD_SIZE": {
+                        "type": "number",
+                        "minium": 0
+                    },
+                    "CH1": {
+                        "type": "string",
+                        "enum": [ "NC", " X (24 bit)", "-X (24 bit)", "RTBE", " X (16 bit)", "-X (16 bit)", "RTBE (3D)" ]
+                    },
+                    "CH2": {
+                        "type": "string",
+                        "enum": [ "NC", " Y (24 bit)", "-Y (24 bit)", " Y (16 bit)", "-Y (16 bit)" ]
+                    },
+                    "CH3": {
+                        "type": "string",
+                        "enum": [ "NC", " Z (24 bit)", "-Z (24 bit)", "RTBE", " Z (16 bit)", "-Z (16 bit)", " Z -> IO8", "-Z -> IO8" ]
+                    },
+                    "I1": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input", "OTF XA", "OTF XA+" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "I2": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input", "OTF XB", "OTF XB+" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "I3": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input", "OTF YA", "OTF YA+" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "I4": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input", "OTF YB", "OTF YB+" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "IO5": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Analog Input", "Analog Output", "Power Output" ]
+                            },
+                            "PD": { "$ref": "#/defs/PullDown" },
+                            "II": { "$ref": "#/defs/InvertInput" },
+                            "PU": { "$ref": "#/defs/PullUp" }
+                        },
+                        "required": [ "FUNCTION", "PD", "II", "PU" ]
+                    },
+                    "IO6": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Analog Input", "Analog Output", "Gate", "Osc3" ]
+                            },
+                            "PD": { "$ref": "#/defs/PullDown" },
+                            "II": { "$ref": "#/defs/InvertInput" },
+                            "PU": { "$ref": "#/defs/PullUp" }
+                        },
+                        "required": [ "FUNCTION", "PD", "II", "PU" ]
+                    },
+                    "IO7": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Analog Input", "Analog Output" ]
+                            },
+                            "PD": { "$ref": "#/defs/PullDown" },
+                            "II": { "$ref": "#/defs/InvertInput" },
+                            "PU": { "$ref": "#/defs/PullUp" }
+                        },
+                        "required": [ "FUNCTION", "PD", "II", "PU" ]
+                    },
+                    "IO8": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Analog Input", "Analog Output" ]
+                            },
+                            "PD": { "$ref": "#/defs/PullDown" },
+                            "II": { "$ref": "#/defs/InvertInput" },
+                            "PU": { "$ref": "#/defs/PullUp" }
+                        },
+                        "required": [ "FUNCTION", "PD", "II", "PU" ]
+                    },
+                    "IO9": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Puls X", "OTF XA-", "OTF & Puls X" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "IO10": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Dir X", "OTF XB-", "OTF & Dir X" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "IO11": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Puls Y", "OTF YA-", "OTF & Puls Y" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "IO12": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Dir Y", "OTF YB-", "OTF & Dir Y" ]
+                            },
+                            "HT": { "$ref": "#/defs/HighThreshold" },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "HT", "II" ]
+                    },
+                    "IO13": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Puls Z", "OTF & Puls Z" ]
+                            },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "II" ]
+                    },
+                    "IO14": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Interlock", "Gate", "VitalSign" ]
+                            },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "II" ]
+                    },
+                    "IO15": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Dir Z", "OTF & Dir Z", "Gate" ]
+                            },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "II" ]
+                    },
+                    "IO16": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Input/Output", "Busy", "Gate" ]
+                            },
+                            "II": { "$ref": "#/defs/InvertInput" }
+                        },
+                        "required": [ "FUNCTION", "II" ]
+                    },
+                    "IO17": {
+                        "type": "object",
+                        "properties": {
+                            "FUNCTION": {
+                                "type": "string",
+                                "enum": [ "Laser Link", "Gate", "Burst", "CO2", "Burst FM", "Laser Link 10+" ]
+                            }
+                        },
+                        "required": [ "FUNCTION" ]
+                    }
+                }
+            }
+        }
+    },
+    "defs": {
+        "Enabled": {
+            "type": "integer",
+            "enum": [ 0, 1 ]
+        },
+        "BiosVersion": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{1,8}$"
+        },
+        "TargetAddress": {
+            "type": "string",
+            "pattern": "^0x[0-9a-f]{1,4}$|HW Select|None"
+        },
+        "HighThreshold": {
+            "$ref": "#/defs/Enabled"
+        },
+        "InvertInput": {
+            "$ref": "#/defs/Enabled"
+        },
+        "PullDown": {
+            "$ref": "#/defs/Enabled"
+        },
+        "PullUp": {
+            "$ref": "#/defs/Enabled"
+        },
+        "DeflectorDescriptor": {
+            "type": "object",
+            "properties": {
+                "TYPE": {
+                    "type": "string"
+                },
+                "SN": {
+                    "type": "integer"
+                },
+                "BIOS": {
+                    "$ref": "#/defs/BiosVersion"
+                }
+            }
+        }
+    }
+}

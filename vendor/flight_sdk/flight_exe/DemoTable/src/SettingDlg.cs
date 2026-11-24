@@ -1,0 +1,228 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Text;
+using System.Windows.Forms;
+using AxFlightLib;
+using global::Flight.Properties;
+
+namespace Flight
+{
+	public partial class SettingDlg : Form
+	{
+		public SettingDlg()
+		{
+			InitializeComponent();
+			txtAddress.Text = Settings.Default.Address;
+			txtResolution.Text = Settings.Default.Resolution.ToString("0.000000");
+			txtFieldWidth.Text = Settings.Default.FieldWidth.ToString("0.000");
+			txtFieldHeight.Text = Settings.Default.FieldHeight.ToString("0.000");
+			txtFieldSize.Text = Settings.Default.FieldSize.ToString("0.000");
+            txtFieldSizeZ.Text = Settings.Default.FieldSize.ToString("0.000");
+            txtFieldTop.Text = Settings.Default.FieldTop.ToString("0.000");
+			txtFieldLeft.Text = Settings.Default.FieldLeft.ToString("0.000");
+            txtFieldFront.Text = Settings.Default.FieldFront.ToString("0.000");
+            txtFieldDepth.Text = Settings.Default.FieldDepth.ToString("0.000");
+            txtTableTrackDelayX.Text = Settings.Default.TableTrackDelayX.ToString();
+            txtTableTrackDelayY.Text = Settings.Default.TableTrackDelayY.ToString();
+            txtTableTrackDelayZ.Text = Settings.Default.TableTrackDelayZ.ToString();
+            txtTablePositionDelayX.Text = Settings.Default.TablePositionDelayX.ToString();
+            txtTablePositionDelayY.Text = Settings.Default.TablePositionDelayY.ToString();
+            txtTablePositionDelayZ.Text = Settings.Default.TablePositionDelayZ.ToString();
+            txtTableMaxSpeedX.Text = Settings.Default.TableMaxSpeedX.ToString("0.000");
+            txtTableMaxSpeedY.Text = Settings.Default.TableMaxSpeedY.ToString("0.000");
+            txtTableMaxSpeedZ.Text = Settings.Default.TableMaxSpeedZ.ToString("0.000");
+            txtHomingSpeedX.Text = Settings.Default.HomingSpeedX.ToString("0.000");
+            txtHomingSpeedY.Text = Settings.Default.HomingSpeedY.ToString("0.000");
+            txtHomingSpeedZ.Text = Settings.Default.HomingSpeedZ.ToString("0.000");
+            txtStepSizeAxisX.Text = Settings.Default.StepSizeAxisX.ToString("0.000000");
+            txtStepSizeAxisY.Text = Settings.Default.StepSizeAxisY.ToString("0.000000");
+            txtStepSizeAxisZ.Text = Settings.Default.StepSizeAxisZ.ToString("0.000000");
+            txtStepSizeEncX.Text = Settings.Default.StepSizeEncoderX.ToString("0.000000");
+            txtStepSizeEncY.Text = Settings.Default.StepSizeEncoderY.ToString("0.000000");
+            txtHomingPositionX.Text = Settings.Default.HomingPositionX.ToString("0.000");
+            txtHomingPositionY.Text = Settings.Default.HomingPositionY.ToString("0.000");
+            txtHomingPositionZ.Text = Settings.Default.HomingPositionZ.ToString("0.000");
+            txtTableTravelMinX.Text = Settings.Default.TableTravelMinX.ToString("0.000");
+            txtTableTravelMinY.Text = Settings.Default.TableTravelMinY.ToString("0.000");
+            txtTableTravelMinZ.Text = Settings.Default.TableTravelMinZ.ToString("0.000");
+            txtTableTravelMaxX.Text = Settings.Default.TableTravelMaxX.ToString("0.000");
+            txtTableTravelMaxY.Text = Settings.Default.TableTravelMaxY.ToString("0.000");
+            txtTableTravelMaxZ.Text = Settings.Default.TableTravelMaxZ.ToString("0.000");
+            txtBeaconPositionX.Text = Settings.Default.CalibrationPositionX.ToString("0.000");
+            txtBeaconPositionY.Text = Settings.Default.CalibrationPositionY.ToString("0.000");
+            txtBeaconPositionZ.Text = Settings.Default.CalibrationPositionZ.ToString("0.000");
+            txtFieldRotation.Text = Settings.Default.FieldRotation.ToString("0.000");
+            cbHomingPolarityX.SelectedIndex = Settings.Default.HomingPolarityX;
+            cbHomingPolarityY.SelectedIndex = Settings.Default.HomingPolarityY;
+            cbHomingPolarityZ.SelectedIndex = Settings.Default.HomingPolarityZ;
+            cbEnableAxisX.Checked = Settings.Default.EnableAxisX;
+            cbEnableAxisY.Checked = Settings.Default.EnableAxisY;
+            cbEnableAxisZ.Checked = Settings.Default.EnableAxisZ;
+            cbLimitSwitchX.Checked = Settings.Default.EStopOnLmtSwitchX;
+            cbLimitSwitchY.Checked = Settings.Default.EStopOnLmtSwitchY;
+            cbLimitSwitchZ.Checked = Settings.Default.EStopOnLmtSwitchZ;
+            cbHomingMethodX.SelectedIndex = Settings.Default.HomingMethodX;
+            cbHomingMethodY.SelectedIndex = Settings.Default.HomingMethodY;
+            cbHomingMethodZ.SelectedIndex = Settings.Default.HomingMethodZ;
+            cbResolverX.Checked = Settings.Default.EnableEncoderX;
+            cbResolverY.Checked = Settings.Default.EnableEncoderY;
+            txtInputHomeX.Text = Settings.Default.InputHomeX.ToString();
+            txtInputHomeY.Text = Settings.Default.InputHomeY.ToString();
+            txtInputHomeZ.Text = Settings.Default.InputHomeZ.ToString();
+            txtInputLswNegX.Text = Settings.Default.InputLimitSwitchNegX.ToString();
+            txtInputLswNegY.Text = Settings.Default.InputLimitSwitchNegY.ToString();
+            txtInputLswNegZ.Text = Settings.Default.InputLimitSwitchNegZ.ToString();
+            txtInputLswPosX.Text = Settings.Default.InputLimitSwitchPosX.ToString();
+            txtInputLswPosY.Text = Settings.Default.InputLimitSwitchPosY.ToString();
+            txtInputLswPosZ.Text = Settings.Default.InputLimitSwitchPosZ.ToString();
+            cbPwrOffOnIdle.Checked = Settings.Default.LaserPwrOffOnIdle;
+            cbPwrMode.SelectedIndex = Settings.Default.LaserPowerMode;
+            txtPwrDC0.Text = Settings.Default.LaserPowerDC0.ToString("0.0");
+            txtPwrDC100.Text = Settings.Default.LaserPowerDC100.ToString("0.0");
+            txtPwrRate.Text = Settings.Default.LaserPowerRate.ToString();
+            txtInputInterlock.Text = Settings.Default.InputInterlock.ToString();
+            cbGrayScale.SelectedIndex = Settings.Default.LaserGrayScale;
+            txtBeaconCOM.Text = Settings.Default.BeaconCOM;
+        }
+
+		public void Apply()
+		{
+			Double fval;
+            int ival;
+			Settings.Default.Address = txtAddress.Text;
+			if (!Double.TryParse(txtResolution.Text, out fval)) fval = 0.0030;
+			Settings.Default.Resolution = fval;
+			if (!Double.TryParse(txtFieldWidth.Text, out fval)) fval = 100;
+			Settings.Default.FieldWidth = fval;
+			if (!Double.TryParse(txtFieldHeight.Text, out fval)) fval = 100;
+			Settings.Default.FieldHeight = fval;
+			if (!Double.TryParse(txtFieldTop.Text, out fval)) fval = 50;
+			Settings.Default.FieldTop = fval;
+			if (!Double.TryParse(txtFieldLeft.Text, out fval)) fval = -50;
+			Settings.Default.FieldLeft = fval;
+            if (!Double.TryParse(txtFieldFront.Text, out fval)) fval = 20;
+            Settings.Default.FieldFront = fval; 
+            if (!Double.TryParse(txtFieldDepth.Text, out fval)) fval = 40;
+            Settings.Default.FieldDepth = fval;
+			if (!Double.TryParse(txtFieldSize.Text, out fval)) fval = 100;
+			Settings.Default.FieldSize = fval;
+            if (!Double.TryParse(txtFieldSizeZ.Text, out fval)) fval = 100;
+            Settings.Default.FieldSizeZ = fval;
+            if (!Int32.TryParse(txtTableTrackDelayX.Text, out ival)) ival = 300;
+            Settings.Default.TableTrackDelayX = ival;
+            if (!Int32.TryParse(txtTableTrackDelayY.Text, out ival)) ival = 300;
+            Settings.Default.TableTrackDelayY = ival;
+            if (!Int32.TryParse(txtTableTrackDelayZ.Text, out ival)) ival = 300;
+            Settings.Default.TableTrackDelayZ = ival;
+            if (!Int32.TryParse(txtTablePositionDelayX.Text, out ival)) ival = 300;
+            Settings.Default.TablePositionDelayX = ival;
+            if (!Int32.TryParse(txtTablePositionDelayY.Text, out ival)) ival = 300;
+            Settings.Default.TablePositionDelayY = ival;
+            if (!Int32.TryParse(txtTablePositionDelayZ.Text, out ival)) ival = 300;
+            Settings.Default.TablePositionDelayZ = ival;
+            if (!Double.TryParse(txtTableMaxSpeedX.Text, out fval)) fval = 20;
+            Settings.Default.TableMaxSpeedX = fval;
+            if (!Double.TryParse(txtTableMaxSpeedY.Text, out fval)) fval = 20;
+            Settings.Default.TableMaxSpeedY = fval;
+            if (!Double.TryParse(txtTableMaxSpeedZ.Text, out fval)) fval = 10;
+            Settings.Default.TableMaxSpeedZ = fval;
+            if (!Double.TryParse(txtHomingSpeedX.Text, out fval)) fval = 10;
+            Settings.Default.HomingSpeedX = fval;
+            if (!Double.TryParse(txtHomingSpeedY.Text, out fval)) fval = 0.001;
+            Settings.Default.HomingSpeedY = fval;
+            if (!Double.TryParse(txtHomingSpeedZ.Text, out fval)) fval = 0.001;
+            Settings.Default.HomingSpeedZ = fval;
+            if (!Double.TryParse(txtStepSizeAxisX.Text, out fval)) fval = 0.001;
+            Settings.Default.StepSizeAxisX = fval;
+            if (!Double.TryParse(txtStepSizeAxisY.Text, out fval)) fval = 0.001;
+            Settings.Default.StepSizeAxisY = fval;
+            if (!Double.TryParse(txtStepSizeAxisZ.Text, out fval)) fval = 0.001;
+            Settings.Default.StepSizeAxisZ = fval;
+            if (!Double.TryParse(txtStepSizeEncX.Text, out fval)) fval = 0.001;
+            Settings.Default.StepSizeEncoderX = fval;
+            if (!Double.TryParse(txtStepSizeEncY.Text, out fval)) fval = 0.001;
+            Settings.Default.StepSizeEncoderY = fval;
+            if (!Double.TryParse(txtHomingPositionX.Text, out fval)) fval = 0;
+            Settings.Default.HomingPositionX = fval;
+            if (!Double.TryParse(txtHomingPositionY.Text, out fval)) fval = 0;
+            Settings.Default.HomingPositionY = fval;
+            if (!Double.TryParse(txtHomingPositionZ.Text, out fval)) fval = 0;
+            Settings.Default.HomingPositionZ = fval;
+            if (!Double.TryParse(txtTableTravelMinX.Text, out fval)) fval = 0;
+            Settings.Default.TableTravelMinX = fval;
+            if (!Double.TryParse(txtTableTravelMinY.Text, out fval)) fval = 0;
+            Settings.Default.TableTravelMinY = fval;
+            if (!Double.TryParse(txtTableTravelMinZ.Text, out fval)) fval = 0;
+            Settings.Default.TableTravelMinZ = fval;
+            if (!Double.TryParse(txtTableTravelMaxX.Text, out fval)) fval = 600;
+            Settings.Default.TableTravelMaxX = fval;
+            if (!Double.TryParse(txtTableTravelMaxY.Text, out fval)) fval = 380;
+            Settings.Default.TableTravelMaxY = fval;
+            if (!Double.TryParse(txtTableTravelMaxZ.Text, out fval)) fval = 360;
+            Settings.Default.TableTravelMaxZ = fval;
+            if (!Double.TryParse(txtBeaconPositionX.Text, out fval)) fval = 0;
+            Settings.Default.CalibrationPositionX = fval;
+            if (!Double.TryParse(txtBeaconPositionY.Text, out fval)) fval = 0;
+            Settings.Default.CalibrationPositionY = fval;
+            if (!Double.TryParse(txtBeaconPositionZ.Text, out fval)) fval = 0;
+            Settings.Default.CalibrationPositionZ = fval;
+            if (!Double.TryParse(txtPwrDC0.Text, out fval)) fval = 0;
+            Settings.Default.LaserPowerDC0 = fval;
+            if (!Double.TryParse(txtPwrDC100.Text, out fval)) fval = 0;
+            Settings.Default.LaserPowerDC100 = fval;
+            if (!Int32.TryParse(txtPwrRate.Text, out ival)) ival = 10000;
+            Settings.Default.LaserPowerRate = ival;
+            if (!Int32.TryParse(txtInputHomeX.Text, out ival)) ival = 2;
+            Settings.Default.InputHomeX = ival;
+            if (!Int32.TryParse(txtInputHomeY.Text, out ival)) ival = 4;
+            Settings.Default.InputHomeY = ival;
+            if (!Int32.TryParse(txtInputHomeZ.Text, out ival)) ival = 13;
+            Settings.Default.InputHomeZ = ival;
+            if (!Int32.TryParse(txtInputLswNegX.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchNegX = ival;
+            if (!Int32.TryParse(txtInputLswNegY.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchNegY = ival;
+            if (!Int32.TryParse(txtInputLswNegZ.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchNegZ = ival;
+            if (!Int32.TryParse(txtInputLswPosX.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchPosX = ival;
+            if (!Int32.TryParse(txtInputLswPosY.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchPosY = ival;
+            if (!Int32.TryParse(txtInputLswPosZ.Text, out ival)) ival = 0;
+            Settings.Default.InputLimitSwitchPosZ = ival;
+            if (!Int32.TryParse(txtInputInterlock.Text, out ival)) ival = 0;
+            Settings.Default.InputInterlock = ival;
+            if (!Double.TryParse(txtFieldRotation.Text, out fval)) fval = 0;
+            Settings.Default.FieldRotation = fval;
+                        
+            Settings.Default.HomingPolarityX = cbHomingPolarityX.SelectedIndex;
+            Settings.Default.HomingPolarityY = cbHomingPolarityY.SelectedIndex;
+            Settings.Default.HomingPolarityZ = cbHomingPolarityZ.SelectedIndex;
+            Settings.Default.HomingMethodX = cbHomingMethodX.SelectedIndex;
+            Settings.Default.HomingMethodY = cbHomingMethodY.SelectedIndex;
+            Settings.Default.HomingMethodZ = cbHomingMethodZ.SelectedIndex;
+            Settings.Default.EnableAxisX = cbEnableAxisX.Checked;
+            Settings.Default.EnableAxisY = cbEnableAxisY.Checked;
+            Settings.Default.EnableAxisZ = cbEnableAxisZ.Checked;
+            Settings.Default.EnableEncoderX = cbResolverX.Checked;
+            Settings.Default.EnableEncoderY = cbResolverY.Checked;
+            Settings.Default.EStopOnLmtSwitchX = cbLimitSwitchX.Checked;
+            Settings.Default.EStopOnLmtSwitchY = cbLimitSwitchY.Checked;
+            Settings.Default.EStopOnLmtSwitchZ = cbLimitSwitchZ.Checked;
+
+            Settings.Default.LaserPwrOffOnIdle = cbPwrOffOnIdle.Checked;
+            Settings.Default.LaserPowerMode = cbPwrMode.SelectedIndex;
+            Settings.Default.LaserGrayScale = cbGrayScale.SelectedIndex;
+            Settings.Default.BeaconCOM = txtBeaconCOM.Text;
+            Settings.Default.Save();
+		}
+
+        private void SettingDlg_Load(object sender, EventArgs e)
+        {
+
+        }
+	}
+}

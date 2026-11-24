@@ -1,0 +1,55 @@
+; Modern Clean WinUSB INF for Newson Rhothor RT-CU (v7.5 hardware) on Windows 10 / Windows 11 (64-bit)
+; No legacy KMDF 1.9 co-installers required (uses native WinUSB built into Windows 10/11)
+
+[Version]
+Signature = "$Windows NT$"
+Class = NewsonDeviceClass
+ClassGUID = {F57AF69C-8590-4b07-8907-0FE43DC18CBE}
+Provider = %ManufacturerName%
+DriverVer = 01/15/2026,1.2.0.0
+CatalogFile = rhothor_win10.cat
+
+; ========== Class Section ==========
+[ClassInstall32]
+AddReg = NewsonClass_AddReg
+
+[NewsonClass_AddReg]
+HKR,,,,%ClassName%
+HKR,,Icon,,"-20"
+
+; ========== Manufacturer Section ==========
+[Manufacturer]
+%ManufacturerName% = NewsonDevices, NTamd64
+
+[NewsonDevices.NTamd64]
+%DeviceDesc% = Install_WinUSB, USB\VID_1525&PID_0007
+
+; ========== Installation Section ==========
+[Install_WinUSB]
+Include = WinUSB.inf
+Needs   = WinUSB.NT
+
+[Install_WinUSB.Services]
+Include = WinUSB.inf
+AddService = WinUSB, 0x00000002, WinUSB_ServiceInstall
+
+[WinUSB_ServiceInstall]
+DisplayName     = %WinUSB_SvcDesc%
+ServiceType     = 1
+StartType       = 3
+ErrorControl    = 1
+ServiceBinary   = %12%\WinUSB.sys
+
+[Install_WinUSB.HW]
+AddReg = Dev_AddReg
+
+[Dev_AddReg]
+; Critical GUID required by rhothor.dll to enumerate and open the RT-CU controller
+HKR,,DeviceInterfaceGUIDs,0x10000,"{FED7004F-CA54-478c-BA6F-E9EFE07066B4}"
+
+; ========== Strings ==========
+[Strings]
+ManufacturerName        = "Newson Engineering NV"
+ClassName               = "Newson USB Devices"
+DeviceDesc              = "Newson Rhothor RT-CU (Win10/Win11 WinUSB)"
+WinUSB_SvcDesc          = "Microsoft WinUSB Driver for Rhothor RT-CU"
