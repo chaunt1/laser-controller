@@ -88,7 +88,34 @@ rhothor_laser_controller/
 
 ---
 
-## 4. Hướng Dẫn Sử Dụng SDK Python
+## 4. Ứng Dụng Hoàn Chỉnh: Rhothor Laser Studio (Desktop App & Windows .EXE)
+
+Tập hợp toàn bộ tính năng trong bộ thư mục `examples/` thành một ứng dụng máy tính đồ họa chuyên nghiệp (PyQt5):
+
+* **Desktop GUI App**: Khởi chạy trực tiếp bằng lệnh `python rhothor_studio.py` hoặc nhấp đúp `run_studio.bat`.
+* **Đóng gói Windows .EXE Độc Lập**: Biên dịch thành 1 file duy nhất `RhothorStudio.exe` thông qua script `tools/windows_setup/build_windows_app.bat` (chạy trên Windows 7, 10, 11 không cần cài Python).
+* **5 Tab Chức Năng Tích Hợp**:
+  1. **📐 2D Khắc Nét (Ex 02)**: Sinh hình vuông, tròn đồng tâm, crosshair, đan lưới hatch và đọc file CAD `.dxf` / `.plt`.
+  2. **🏔️ Tiêu Cự Động 3D (Ex 03)**: Điều khiển trục Z ELEVAthor EL-S2, khắc bậc thang đa tầng và dốc nghiêng 3D.
+  3. **⏱️ Hiệu Chuẩn Trễ (Ex 04)**: Tinh chỉnh Gate On/Off delay và tự tạo ma trận vạch test để soi kính hiển vi.
+  4. **⚡ Q-Switch & Digital I/O (Ex 05)**: Cấu hình tần số Oscillator phát xung MOPA/Q-switch, bắn xung tĩnh (burst drilling), và bảng điều khiển I/O 8-bit (khí nén, hút khói, đèn laser đỏ, interlock).
+  5. **🔌 Kết Nối & Đọc Tham Số (Ex 01)**: Tự động kết nối phần cứng USB hoặc bộ mô phỏng, đọc thanh ghi DSP.
+* **Tài liệu chi tiết**:
+  - [Sổ Tay Vận Hành Studio](docs/RHOTHOR_STUDIO_USER_GUIDE.md)
+  - [Hướng Dẫn Build Windows .EXE](docs/WINDOWS_APP_BUILD_GUIDE.md)
+
+---
+
+## 5. Ứng Dụng Tối Giản Thay Thế EzCad: Rhothor EasyLaser (Web App)
+
+Giải pháp web tối giản không phụ thuộc thư viện ngoài (zero-dependency) dành cho thợ vận hành chỉ cần kéo thả file DXF/PLT:
+* Khởi chạy nhanh trên Windows: `tools\windows_setup\start_easylaser.bat`
+* Khởi chạy trên Linux: `./apps/easylaser/start_easylaser.sh`
+* Giao diện trình duyệt tối ưu tại `http://localhost:8080`: Kéo thả file, căn giữa, quét khung định vị phôi (Laser OFF) và bấm Khắc Laser.
+
+---
+
+## 6. Hướng Dẫn Sử Dụng SDK Python
 
 SDK Python tự động nhận diện môi trường:
 * Khi chạy trên Windows có cắm phần cứng: Nạp trực tiếp `rhothor.dll` qua cổng USB.

@@ -12,6 +12,11 @@ __pycache__/
 *.exe
 *.pdb
 
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+
 # IDE / Editor configs
 .vscode/
 .idea/

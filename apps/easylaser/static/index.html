@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rhothor EasyLaser - Phần Mềm Cắt Khắc Laser Tối Giản</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-logo">⚡ EASY LASER</span>
+      <span class="brand-sub">Newson Rhothor LPKF Edition</span>
+    </div>
+    <div class="top-status">
+      <span id="fileBadge" class="file-badge">Chưa mở file</span>
+      <span class="status-pill online" id="statusPill">ĐANG KẾT NỐI (LPKF #4281)</span>
+    </div>
+  </header>
+
+  <!-- Main Application Layout -->
+  <main class="main-layout">
+    
+    <!-- Left Sidebar: Simple Operator Controls -->
+    <aside class="sidebar">
+      
+      <!-- Section 1: File Loading -->
+      <div class="card">
+        <h3 class="card-title">1. TỆP TIN BẢN VẼ (PLT / DXF)</h3>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".dxf,.plt,.hpgl,.hpg" style="display:none;">
+          <div class="drop-icon">📁</div>
+          <div class="drop-text">Kéo thả file <strong>DXF / PLT</strong> vào đây</div>
+          <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Hoặc chọn file từ máy tính</button>
+        </div>
+        <div id="fileInfoBox" class="file-meta" style="display:none;">
+          <div class="meta-row"><span>Định dạng:</span> <strong id="valFormat">DXF</strong></div>
+          <div class="meta-row"><span>Kích thước:</span> <strong id="valSize">0 x 0 mm</strong></div>
+          <div class="meta-row"><span>Tổng đường nét:</span> <strong id="valStrokes">0</strong></div>
+          <div class="meta-row"><span>Quãng đường:</span> <strong id="valDistance">0 mm</strong></div>
+        </div>
+      </div>
+
+      <!-- Section 2: Laser Settings (Beginner-Friendly) -->
+      <div class="card">
+        <h3 class="card-title">2. THÔNG SỐ KHẮC (DỄ ĐIỀU CHỈNH)</h3>
+        
+        <div class="control-group">
+          <div class="control-header">
+            <span>Tốc độ khắc (Mark Speed):</span>
+            <strong id="dispSpeed">1500 mm/s</strong>
+          </div>
+          <input type="range" id="sliderSpeed" min="200" max="4000" step="50" value="1500">
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <span>Công suất Laser (% Power):</span>
+            <strong id="dispPower">80%</strong>
+          </div>
+          <input type="range" id="sliderPower" min="5" max="100" step="5" value="80">
+        </div>
+
+        <div class="control-row">
+          <div class="control-half">
+            <label>Số lượt cắt (Passes):</label>
+            <input type="number" id="inputPasses" min="1" max="50" value="1" class="input-num">
+          </div>
+          <div class="control-half">
+            <label>Tỉ lệ phóng to (Scale):</label>
+            <input type="number" id="inputScale" min="0.1" max="10" step="0.05" value="1.0" class="input-num">
+          </div>
+        </div>
+
+        <div class="control-row" style="margin-top:8px;">
+          <button class="btn btn-sm" onclick="centerArtwork()">Căn Giữa (Center)</button>
+          <button class="btn btn-sm" onclick="rotateArtwork(90)">Xoay 90°</button>
+        </div>
+      </div>
+
+      <!-- Section 3: Execution Buttons -->
+      <div class="card action-card">
+        <h3 class="card-title">3. VẬN HÀNH MÁY</h3>
+        
+        <!-- Frame Red Pointer -->
+        <button class="btn btn-frame" id="btnFrame" onclick="traceFrame()">
+          🔍 1. QUÉT KHUNG ĐỊNH VỊ PHÔI (RED FRAME)
+        </button>
+
+        <!-- Start Mark -->
+        <button class="btn btn-start" id="btnMark" onclick="startMarking()">
+          ⚡ 2. BẮT ĐẦU KHẮC LASER (START MARK)
+        </button>
+
+        <!-- Emergency Stop -->
+        <button class="btn btn-danger" id="btnStop" onclick="emergencyStop()">
+          ⛔ DỪNG KHẨN CẤP (STOP / ABORT)
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- Center Canvas View -->
+    <section class="canvas-area">
+      <div class="canvas-toolbar">
+        <div class="tool-group">
+          <button class="tool-btn" onclick="zoomIn()" title="Phóng to">🔍 +</button>
+          <button class="tool-btn" onclick="zoomOut()" title="Thu nhỏ">🔍 -</button>
+          <button class="tool-btn" onclick="fitView()" title="Vừa màn hình">⛶ Vừa Vùng Quét</button>
+          <button class="tool-btn" onclick="loadSample('dxf')">Mẫu Thử DXF</button>
+          <button class="tool-btn" onclick="loadSample('plt')">Mẫu Thử PLT</button>
+        </div>
+        <div class="canvas-legend">
+          <span class="legend-dot mark-dot"></span> Tia Laser (Cắt)
+          <span class="legend-dot jump-dot"></span> Di chuyển nhanh (Nhảy)
+          <span class="legend-dot box-dot"></span> Khung phôi
+        </div>
+      </div>
+
+      <div class="canvas-container" id="canvasContainer">
+        <canvas id="laserCanvas"></canvas>
+        <div class="canvas-crosshair-hud" id="hudCoords">X: 0.00 mm | Y: 0.00 mm</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

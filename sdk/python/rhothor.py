@@ -167,6 +167,7 @@ class RhothorController:
         self.name = name
         self.simulate = simulate
         self.native: Optional[RhothorNative] = None
+        self.is_connected = False
         self.sim: Optional[RhothorSimulator] = None
         
         # Try native DLL if not explicitly in simulate mode
@@ -194,6 +195,7 @@ class RhothorController:
             res = self.sim.initialise()
             if self.serial_nr:
                 self.sim.select_device(self.serial_nr)
+            self.is_connected = True
             return
 
         res = self.native.dll.rtInitialise()
@@ -204,6 +206,7 @@ class RhothorController:
             res = self.native.dll.rtSelectDevice(ctypes.c_long(self.serial_nr))
             if res != ERR_OK:
                 raise RhothorError(res, f"rtSelectDevice({self.serial_nr})")
+        self.is_connected = True
 
     def disconnect(self):
         """Safely stops motion and turns off laser."""
@@ -212,6 +215,7 @@ class RhothorController:
             self.set_laser(False)
         except Exception:
             pass
+        self.is_connected = False
 
     def abort(self):
         """Immediately aborts any active command list."""
