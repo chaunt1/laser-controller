@@ -137,17 +137,17 @@ class Marking2DTab(QWidget):
         # Mark Speed
         params_layout.addWidget(QLabel("Tốc độ khắc (Mark Speed mm/s):"), 0, 0)
         self.spin_mark_speed = QDoubleSpinBox()
-        self.spin_mark_speed.setRange(100.0, 6000.0)
+        self.spin_mark_speed.setRange(50.0, 6000.0)
         self.spin_mark_speed.setSingleStep(100.0)
-        self.spin_mark_speed.setValue(2000.0)
+        self.spin_mark_speed.setValue(1000.0)
         params_layout.addWidget(self.spin_mark_speed, 0, 1)
 
         # Jump Speed
         params_layout.addWidget(QLabel("Tốc độ nhảy (Jump Speed mm/s):"), 0, 2)
         self.spin_jump_speed = QDoubleSpinBox()
-        self.spin_jump_speed.setRange(500.0, 8000.0)
-        self.spin_jump_speed.setSingleStep(500.0)
-        self.spin_jump_speed.setValue(6000.0)
+        self.spin_jump_speed.setRange(50.0, 8000.0)
+        self.spin_jump_speed.setSingleStep(100.0)
+        self.spin_jump_speed.setValue(2000.0)
         params_layout.addWidget(self.spin_jump_speed, 0, 3)
 
         # Passes

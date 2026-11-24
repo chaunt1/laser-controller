@@ -185,9 +185,13 @@ class RhothorController:
         self.is_list_open = False
         self.sim: Optional[RhothorSimulator] = None
 
+        # Operational hardware speed limit (queried on connect, default safe 2000.0)
+        self.max_speed: float = 2000.0
+
         # Cached list control settings to be deferred until list_open()
-        self.current_mark_speed: float = 2000.0
-        self.current_jump_speed: float = 6000.0
+        # Default speeds safely clamped within LPKF hardware limit (2000 mm/s)
+        self.current_mark_speed: float = 1000.0
+        self.current_jump_speed: float = 2000.0
         self.current_laser_delays: Optional[Tuple[int, int]] = None
         self.current_matrix: Optional[Tuple[float, float, float, float]] = None
         self.current_offsets: Tuple[float, float, float] = (0.0, 0.0, 0.0)
@@ -218,6 +222,10 @@ class RhothorController:
             if self.serial_nr:
                 self.sim.select_device(self.serial_nr)
             res = self.sim.initialise()
+            try:
+                self.max_speed = float(self.get_max_speed())
+            except Exception:
+                pass
             self.is_connected = True
             return
 
@@ -244,11 +252,22 @@ class RhothorController:
         except Exception:
             pass
 
-        # Query actual connected hardware serial number
+        # Query actual connected hardware serial number and kinematics limit
         try:
             actual_serial = self.get_serial()
             if actual_serial > 0:
                 self.serial_nr = actual_serial
+        except Exception:
+            pass
+
+        try:
+            hw_max_speed = self.get_max_speed()
+            if hw_max_speed > 0:
+                self.max_speed = float(hw_max_speed)
+                if self.current_mark_speed > self.max_speed:
+                    self.current_mark_speed = self.max_speed
+                if self.current_jump_speed > self.max_speed:
+                    self.current_jump_speed = self.max_speed
         except Exception:
             pass
 
@@ -345,11 +364,20 @@ class RhothorController:
         Sets marking speed and optional fast jump speed in mm/sec.
         If a command list is open, transmits immediately to DSP.
         If no list is open, caches parameters to be automatically flushed on list_open().
+        Automatically clamps speeds to the scanner hardware limit (max_speed) to prevent ERR_DATA [13].
         """
         if mark_speed <= 0:
             raise RhothorError(ERR_DATA, f"Invalid mark_speed: {mark_speed}")
         if jump_speed is not None and jump_speed <= 0:
             raise RhothorError(ERR_DATA, f"Invalid jump_speed: {jump_speed}")
+
+        # Protect against exceeding hardware max_speed (which DLL rejects with ERR_DATA 13)
+        limit = getattr(self, "max_speed", 2000.0)
+        if limit and limit > 0:
+            if mark_speed > limit:
+                mark_speed = limit
+            if jump_speed is not None and jump_speed > limit:
+                jump_speed = limit
 
         self.current_mark_speed = float(mark_speed)
         if jump_speed is not None:
@@ -369,10 +397,27 @@ class RhothorController:
         # Otherwise, defer sending until list_open() to avoid ERR_JOB (3).
         if self.is_list_open:
             res = self.native.dll.rtSetSpeed(ctypes.c_double(self.current_mark_speed))
+            if res == ERR_DATA:
+                try:
+                    hw_limit = self.get_max_speed()
+                    self.max_speed = hw_limit
+                    self.current_mark_speed = min(self.current_mark_speed, hw_limit)
+                    res = self.native.dll.rtSetSpeed(ctypes.c_double(self.current_mark_speed))
+                except Exception:
+                    pass
             if res != ERR_OK:
                 raise RhothorError(res, "rtSetSpeed")
+
             if self.current_jump_speed is not None:
                 res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(self.current_jump_speed))
+                if res == ERR_DATA:
+                    try:
+                        hw_limit = self.get_max_speed()
+                        self.max_speed = hw_limit
+                        self.current_jump_speed = min(self.current_jump_speed, hw_limit)
+                        res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(self.current_jump_speed))
+                    except Exception:
+                        pass
                 if res != ERR_OK:
                     raise RhothorError(res, "rtSetJumpSpeed")
 
@@ -501,12 +546,32 @@ class RhothorController:
 
         # Flush active configuration parameters into the open DSP list
         if not self.simulate:
+            limit = getattr(self, "max_speed", 2000.0)
             if self.current_mark_speed is not None:
-                res = self.native.dll.rtSetSpeed(ctypes.c_double(self.current_mark_speed))
+                spd = min(self.current_mark_speed, limit) if limit > 0 else self.current_mark_speed
+                res = self.native.dll.rtSetSpeed(ctypes.c_double(spd))
+                if res == ERR_DATA:
+                    try:
+                        hw_limit = self.get_max_speed()
+                        self.max_speed = hw_limit
+                        spd = min(spd, hw_limit)
+                        res = self.native.dll.rtSetSpeed(ctypes.c_double(spd))
+                    except Exception:
+                        pass
                 if res != ERR_OK:
                     raise RhothorError(res, "rtSetSpeed")
+
             if self.current_jump_speed is not None:
-                res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(self.current_jump_speed))
+                jspd = min(self.current_jump_speed, limit) if limit > 0 else self.current_jump_speed
+                res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(jspd))
+                if res == ERR_DATA:
+                    try:
+                        hw_limit = self.get_max_speed()
+                        self.max_speed = hw_limit
+                        jspd = min(jspd, hw_limit)
+                        res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(jspd))
+                    except Exception:
+                        pass
                 if res != ERR_OK:
                     raise RhothorError(res, "rtSetJumpSpeed")
             if self.current_laser_delays is not None:

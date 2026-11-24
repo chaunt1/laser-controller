@@ -512,8 +512,11 @@ class ConnectionTab(QWidget):
 
         # 6. List buffer execution test (Open -> Jump -> Close)
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
+            test_mark = min(1000.0, ms) if ms > 0 else 1000.0
+            test_jump = min(2000.0, ms) if ms > 0 else 2000.0
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2000.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=test_mark, jump_speed=test_jump)
             self.controller.jump_to(0.0, 0.0)
             self.controller.list_close()
             results.append(("6. Bộ đệm lệnh DSP (Command List Buffer)", "PASS (Chạy chuẩn)", True))
@@ -556,8 +559,9 @@ class ConnectionTab(QWidget):
         self.vectors_changed.emit(strokes, bbox)
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2000.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=min(1000.0, ms), jump_speed=min(2000.0, ms))
             self.controller.jump_to(0.0, 0.0)
             self.controller.list_close()
             self.log_message.emit("Test 1: Galvo mirrors positioned at Origin (0, 0). Laser OFF.")
@@ -579,8 +583,9 @@ class ConnectionTab(QWidget):
         self._current_frame_bbox = bbox
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2500.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
             # Move around contour with laser OFF (move_to uses mark speed with gate OFF)
             self.controller.jump_to(-hs, -hs)
             self.controller.move_to(hs, -hs)
@@ -606,8 +611,9 @@ class ConnectionTab(QWidget):
         self._current_frame_bbox = bbox
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2000.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
             for r in [10.0, 20.0, 30.0, 40.0]:
                 self.controller.jump_to(-r, 0.0)
                 self.controller.arc_to(r, 0.0, 1.0)
@@ -627,8 +633,9 @@ class ConnectionTab(QWidget):
         self.vectors_changed.emit(strokes, bbox)
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2000.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
             self.controller.jump_to(-20.0, 0.0)
             self.controller.move_to(20.0, 0.0)
             self.controller.jump_to(0.0, -20.0)
@@ -655,8 +662,9 @@ class ConnectionTab(QWidget):
         self._current_frame_bbox = bbox
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=2500.0, jump_speed=5000.0)
+            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
             for stroke in strokes:
                 p1, p2 = stroke[0], stroke[1]
                 self.controller.jump_to(p1["x"], p1["y"])
