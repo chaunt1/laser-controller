@@ -31,7 +31,7 @@ for src, dst in dll_candidates:
         binaries.append((src, dst))
 
 # Hidden imports required by dynamic reflection
-hiddenimports = [
+candidate_hidden = [
     'PyQt5',
     'PyQt5.QtCore',
     'PyQt5.QtGui',
@@ -52,6 +52,13 @@ hiddenimports = [
     'apps.rhothor_studio.tabs.tab_timing',
     'apps.rhothor_studio.tabs.tab_io_trigger',
 ]
+hiddenimports = []
+for mod in candidate_hidden:
+    try:
+        __import__(mod)
+        hiddenimports.append(mod)
+    except Exception:
+        hiddenimports.append(mod)
 
 # Excluded packages to minimize binary size
 excludes = [
