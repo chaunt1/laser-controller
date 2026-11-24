@@ -53,7 +53,7 @@ def run_cli_diagnostics(args):
             try:
                 ms = getattr(galvo, "max_speed", 2000.0)
                 galvo.list_open(1)
-                galvo.set_speed(mark_speed=min(1000.0, ms), jump_speed=min(2000.0, ms))
+                galvo.set_speed(mark_speed=min(800.0, ms * 0.5), jump_speed=min(1500.0, ms * 0.75))
                 galvo.jump_to(0.0, 0.0)
                 galvo.list_close()
                 tests.append(("5. Kiểm tra bộ đệm lệnh DSP (List Buffer)", True))
@@ -74,7 +74,7 @@ def run_cli_diagnostics(args):
             print(f"\n[*] Executing Galvo Motion Pattern '{pattern}' (Laser OFF)...")
             ms = getattr(galvo, "max_speed", 2000.0)
             galvo.list_open(1)
-            galvo.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
+            galvo.set_speed(mark_speed=min(1200.0, ms * 0.6), jump_speed=min(1500.0, ms * 0.75))
 
             if pattern in ("origin", "zero"):
                 print("  -> Positioning mirrors at Center (0, 0)...")

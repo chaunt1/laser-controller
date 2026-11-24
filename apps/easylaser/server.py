@@ -166,7 +166,7 @@ class EasyLaserHandler(SimpleHTTPRequestHandler):
 
                 g = get_galvo()
                 g.list_open(1)
-                g.set_speed(mark_speed=2000.0, jump_speed=5000.0)
+                g.set_speed(mark_speed=1000.0, jump_speed=1500.0)
                 # Move around contour with laser OFF
                 g.jump_to(min_x, min_y)
                 g.move_to(max_x, min_y)

@@ -129,7 +129,7 @@ class FrameWorker(QThread):
         scale: float = 1.0,
         offset_x: float = 0.0,
         offset_y: float = 0.0,
-        speed: float = 2500.0,
+        speed: float = 1500.0,
         continuous: bool = False,
         parent=None
     ):

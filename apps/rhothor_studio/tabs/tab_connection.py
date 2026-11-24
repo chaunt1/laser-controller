@@ -179,9 +179,9 @@ class ConnectionTab(QWidget):
         frame_box = QHBoxLayout()
         frame_box.addWidget(QLabel("Tốc độ quét khung:"))
         self.spin_frame_speed = QSpinBox()
-        self.spin_frame_speed.setRange(200, 8000)
-        self.spin_frame_speed.setValue(2500)
-        self.spin_frame_speed.setSingleStep(500)
+        self.spin_frame_speed.setRange(100, 4000)
+        self.spin_frame_speed.setValue(1500)
+        self.spin_frame_speed.setSingleStep(100)
         self.spin_frame_speed.setSuffix(" mm/s")
         frame_box.addWidget(self.spin_frame_speed)
 
@@ -462,6 +462,13 @@ class ConnectionTab(QWidget):
                 self.table_info.setItem(row, 1, item_val)
                 row += 1
 
+            if getattr(self.controller, "max_speed", None):
+                ms = self.controller.max_speed
+                if ms > 0:
+                    self.spin_frame_speed.setMaximum(int(ms))
+                    if self.spin_frame_speed.value() > ms:
+                        self.spin_frame_speed.setValue(int(ms * 0.75))
+
             self.log_message.emit("Device parameters queried successfully.")
         except Exception as e:
             self.log_message.emit(f"Error querying device: {e}")
@@ -513,8 +520,8 @@ class ConnectionTab(QWidget):
         # 6. List buffer execution test (Open -> Jump -> Close)
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
-            test_mark = min(1000.0, ms) if ms > 0 else 1000.0
-            test_jump = min(2000.0, ms) if ms > 0 else 2000.0
+            test_mark = min(800.0, ms * 0.5) if ms > 0 else 800.0
+            test_jump = min(1500.0, ms * 0.75) if ms > 0 else 1500.0
             self.controller.list_open(1)
             self.controller.set_speed(mark_speed=test_mark, jump_speed=test_jump)
             self.controller.jump_to(0.0, 0.0)
@@ -561,7 +568,7 @@ class ConnectionTab(QWidget):
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=min(1000.0, ms), jump_speed=min(2000.0, ms))
+            self.controller.set_speed(mark_speed=min(800.0, ms * 0.5), jump_speed=min(1500.0, ms * 0.75))
             self.controller.jump_to(0.0, 0.0)
             self.controller.list_close()
             self.log_message.emit("Test 1: Galvo mirrors positioned at Origin (0, 0). Laser OFF.")
@@ -585,7 +592,7 @@ class ConnectionTab(QWidget):
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
+            self.controller.set_speed(mark_speed=min(1200.0, ms * 0.6), jump_speed=min(1500.0, ms * 0.75))
             # Move around contour with laser OFF (move_to uses mark speed with gate OFF)
             self.controller.jump_to(-hs, -hs)
             self.controller.move_to(hs, -hs)
@@ -613,7 +620,7 @@ class ConnectionTab(QWidget):
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
+            self.controller.set_speed(mark_speed=min(1200.0, ms * 0.6), jump_speed=min(1500.0, ms * 0.75))
             for r in [10.0, 20.0, 30.0, 40.0]:
                 self.controller.jump_to(-r, 0.0)
                 self.controller.arc_to(r, 0.0, 1.0)
@@ -635,7 +642,7 @@ class ConnectionTab(QWidget):
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
+            self.controller.set_speed(mark_speed=min(1200.0, ms * 0.6), jump_speed=min(1500.0, ms * 0.75))
             self.controller.jump_to(-20.0, 0.0)
             self.controller.move_to(20.0, 0.0)
             self.controller.jump_to(0.0, -20.0)
@@ -664,7 +671,7 @@ class ConnectionTab(QWidget):
         try:
             ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=min(1500.0, ms), jump_speed=min(2000.0, ms))
+            self.controller.set_speed(mark_speed=min(1200.0, ms * 0.6), jump_speed=min(1500.0, ms * 0.75))
             for stroke in strokes:
                 p1, p2 = stroke[0], stroke[1]
                 self.controller.jump_to(p1["x"], p1["y"])
@@ -752,8 +759,9 @@ class ConnectionTab(QWidget):
         self.vectors_changed.emit(strokes, bbox)
 
         try:
+            ms = getattr(self.controller, "max_speed", 2000.0)
             self.controller.list_open(1)
-            self.controller.set_speed(mark_speed=1500.0, jump_speed=4000.0)
+            self.controller.set_speed(mark_speed=min(800.0, ms * 0.5), jump_speed=min(1500.0, ms * 0.75))
             self.controller.jump_to(self.jog_x, self.jog_y)
             self.controller.list_close()
             self.log_message.emit(f"Jog step ({dx:+.1f}, {dy:+.1f}) -> Position: ({self.jog_x:.2f}, {self.jog_y:.2f}) mm")

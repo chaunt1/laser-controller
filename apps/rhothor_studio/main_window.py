@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, serial: int = 4281, name: str = "LPKF", parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Rhothor Laser Studio v1.1.0 - LPKF Galvo Controller")
+        self.setWindowTitle("Rhothor Laser Studio v1.1.1 - LPKF Galvo Controller")
         self.resize(1340, 840)
         self.setMinimumSize(1024, 700)
 
@@ -396,10 +396,11 @@ class MainWindow(QMainWindow):
         self.btn_frame.setText("⏹️ DỪNG QUÉT KHUNG...")
         self.canvas.set_frame_preview(self.active_bbox)
 
+        ms = getattr(self.controller, "max_speed", 2000.0)
         self.frame_worker = FrameWorker(
             controller=self.controller,
             bbox=self.active_bbox,
-            speed=2500.0,
+            speed=min(1500.0, ms * 0.75) if ms > 0 else 1500.0,
             continuous=False,
             parent=self
         )

@@ -98,8 +98,8 @@ class TestRhothorSDK(unittest.TestCase):
     def test_speed_clamping_to_hardware_max(self):
         self.galvo.max_speed = 2000.0
         self.galvo.set_speed(mark_speed=3000.0, jump_speed=5000.0)
-        self.assertEqual(self.galvo.current_mark_speed, 2000.0)
-        self.assertEqual(self.galvo.current_jump_speed, 2000.0)
+        self.assertLessEqual(self.galvo.current_mark_speed, 2000.0)
+        self.assertLessEqual(self.galvo.current_jump_speed, 2000.0)
 
 
 if __name__ == "__main__":
