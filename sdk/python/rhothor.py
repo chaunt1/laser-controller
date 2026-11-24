@@ -152,7 +152,16 @@ class RhothorController:
         self.simulate = simulate
         self.native: Optional[RhothorNative] = None
         self.is_connected = False
+        self.is_list_open = False
         self.sim: Optional[RhothorSimulator] = None
+
+        # Cached list control settings to be deferred until list_open()
+        self.current_mark_speed: float = 2000.0
+        self.current_jump_speed: float = 6000.0
+        self.current_laser_delays: Optional[Tuple[int, int]] = None
+        self.current_matrix: Optional[Tuple[float, float, float, float]] = None
+        self.current_offsets: Tuple[float, float, float] = (0.0, 0.0, 0.0)
+        self.current_oscillators: Dict[int, Tuple[float, float]] = {}
         
         # Try native DLL if not explicitly in simulate mode
         if not simulate and sys.platform == "win32":
@@ -203,10 +212,13 @@ class RhothorController:
 
     def abort(self):
         """Immediately aborts any active command list."""
-        if self.simulate:
-            self.sim.abort()
-        else:
-            self.native.dll.rtAbort()
+        try:
+            if self.simulate:
+                self.sim.abort()
+            else:
+                self.native.dll.rtAbort()
+        finally:
+            self.is_list_open = False
 
     # --- Query Methods ---
 
@@ -275,7 +287,20 @@ class RhothorController:
     # --- Configuration Methods ---
 
     def set_speed(self, mark_speed: float, jump_speed: Optional[float] = None):
-        """Sets marking speed and optional fast jump speed in mm/sec."""
+        """
+        Sets marking speed and optional fast jump speed in mm/sec.
+        If a command list is open, transmits immediately to DSP.
+        If no list is open, caches parameters to be automatically flushed on list_open().
+        """
+        if mark_speed <= 0:
+            raise RhothorError(ERR_DATA, f"Invalid mark_speed: {mark_speed}")
+        if jump_speed is not None and jump_speed <= 0:
+            raise RhothorError(ERR_DATA, f"Invalid jump_speed: {jump_speed}")
+
+        self.current_mark_speed = float(mark_speed)
+        if jump_speed is not None:
+            self.current_jump_speed = float(jump_speed)
+
         if self.simulate:
             res = self.sim.set_speed(mark_speed)
             if res != ERR_OK:
@@ -286,13 +311,16 @@ class RhothorController:
                     raise RhothorError(res2, "rtSetJumpSpeed")
             return
 
-        res = self.native.dll.rtSetSpeed(ctypes.c_double(mark_speed))
-        if res != ERR_OK:
-            raise RhothorError(res, "rtSetSpeed")
-        if jump_speed is not None:
-            res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(jump_speed))
+        # If a command list is open on hardware DSP, apply immediately.
+        # Otherwise, defer sending until list_open() to avoid ERR_JOB (3).
+        if self.is_list_open:
+            res = self.native.dll.rtSetSpeed(ctypes.c_double(self.current_mark_speed))
             if res != ERR_OK:
-                raise RhothorError(res, "rtSetJumpSpeed")
+                raise RhothorError(res, "rtSetSpeed")
+            if self.current_jump_speed is not None:
+                res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(self.current_jump_speed))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetJumpSpeed")
 
     def set_max_speed(self, max_speed: float):
         """Sets max speed if supported by firmware/DLL (v11+), or safely ignores on v7.5."""
@@ -308,58 +336,83 @@ class RhothorController:
 
     def set_laser_delays(self, gate_on_delay_us: int, gate_off_delay_us: int):
         """Configures laser gate on and off delays in microseconds."""
+        self.current_laser_delays = (gate_on_delay_us, gate_off_delay_us)
         if self.simulate:
             self.sim.set_laser_times(gate_on_delay_us, gate_off_delay_us)
             return
-        res = self.native.dll.rtSetLaserTimes(ctypes.c_long(gate_on_delay_us),
-                                              ctypes.c_long(gate_off_delay_us))
-        if res != ERR_OK:
-            raise RhothorError(res, "rtSetLaserTimes")
+
+        if self.is_list_open:
+            res = self.native.dll.rtSetLaserTimes(ctypes.c_long(gate_on_delay_us),
+                                                  ctypes.c_long(gate_off_delay_us))
+            if res != ERR_OK:
+                raise RhothorError(res, "rtSetLaserTimes")
 
     def set_laser(self, on_off: bool):
         """Manually forces the laser state on or off."""
         if self.simulate:
             self.sim.set_laser(on_off)
             return
-        res = self.native.dll.rtSetLaser(ctypes.c_bool(on_off))
-        if res != ERR_OK:
-            raise RhothorError(res, "rtSetLaser")
+        if self.is_list_open:
+            res = self.native.dll.rtSetLaser(ctypes.c_bool(on_off))
+            if res != ERR_OK:
+                raise RhothorError(res, "rtSetLaser")
+        else:
+            # If no list is open, attempt momentary list execution safely
+            try:
+                if self.native.dll.rtListOpen(ctypes.c_long(1)) == ERR_OK:
+                    self.native.dll.rtSetLaser(ctypes.c_bool(on_off))
+                    self.native.dll.rtListClose()
+            except Exception:
+                pass
 
     def set_matrix(self, a11: float, a12: float, a21: float, a22: float):
         """Sets 2x2 coordinate transformation matrix (scaling, rotation, shear)."""
+        self.current_matrix = (a11, a12, a21, a22)
         if self.simulate:
             self.sim.set_matrix(a11, a12, a21, a22)
             return
-        res = self.native.dll.rtSetMatrix(ctypes.c_double(a11), ctypes.c_double(a12),
-                                          ctypes.c_double(a21), ctypes.c_double(a22))
-        if res != ERR_OK:
-            raise RhothorError(res, "rtSetMatrix")
+        if self.is_list_open:
+            res = self.native.dll.rtSetMatrix(ctypes.c_double(a11), ctypes.c_double(a12),
+                                              ctypes.c_double(a21), ctypes.c_double(a22))
+            if res != ERR_OK:
+                raise RhothorError(res, "rtSetMatrix")
 
     def set_offsets(self, x: float, y: float, z: float = 0.0):
         """Sets working coordinate offsets."""
+        self.current_offsets = (x, y, z)
         if self.simulate:
             self.sim.set_offsets(x, y)
             self.sim.set_offset_z(z)
             return
-        self.native.dll.rtSetOffsXY(ctypes.c_double(x), ctypes.c_double(y))
-        if z != 0.0:
-            self.native.dll.rtSetOffsZ(ctypes.c_double(z))
+        if self.is_list_open:
+            res = self.native.dll.rtSetOffsXY(ctypes.c_double(x), ctypes.c_double(y))
+            if res != ERR_OK:
+                raise RhothorError(res, "rtSetOffsXY")
+            if z != 0.0:
+                res_z = self.native.dll.rtSetOffsZ(ctypes.c_double(z))
+                if res_z != ERR_OK:
+                    raise RhothorError(res_z, "rtSetOffsZ")
 
     def set_oscillator(self, nr: int, period_us: float, pulse_width_us: float):
         """Configures one of the 3 internal hardware oscillators for laser pulses."""
+        self.current_oscillators[nr] = (period_us, pulse_width_us)
         if self.simulate:
             self.sim.oscillators[nr] = {"period": period_us, "width": pulse_width_us}
             return
-        res = self.native.dll.rtSetOscillator(ctypes.c_long(nr),
-                                              ctypes.c_double(period_us),
-                                              ctypes.c_double(pulse_width_us))
-        if res != ERR_OK:
-            raise RhothorError(res, f"rtSetOscillator({nr})")
+        if self.is_list_open:
+            res = self.native.dll.rtSetOscillator(ctypes.c_long(nr),
+                                                  ctypes.c_double(period_us),
+                                                  ctypes.c_double(pulse_width_us))
+            if res != ERR_OK:
+                raise RhothorError(res, f"rtSetOscillator({nr})")
 
     # --- List Management ---
 
     def list_open(self, mode: int = LIST_START):
-        """Opens a command list (LIST_START=1, AUTO_START=2, AUTO_REPEAT=3)."""
+        """
+        Opens a command list (LIST_START=1, AUTO_START=2, AUTO_REPEAT=3).
+        Automatically flushes configured speeds, delays, offsets, matrix, and oscillators.
+        """
         if self.simulate:
             res = self.sim.list_open(mode)
         else:
@@ -367,14 +420,56 @@ class RhothorController:
         if res != ERR_OK:
             raise RhothorError(res, f"rtListOpen({mode})")
 
+        self.is_list_open = True
+
+        # Flush active configuration parameters into the open DSP list
+        if not self.simulate:
+            if self.current_mark_speed is not None:
+                res = self.native.dll.rtSetSpeed(ctypes.c_double(self.current_mark_speed))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetSpeed")
+            if self.current_jump_speed is not None:
+                res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(self.current_jump_speed))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetJumpSpeed")
+            if self.current_laser_delays is not None:
+                on_d, off_d = self.current_laser_delays
+                res = self.native.dll.rtSetLaserTimes(ctypes.c_long(on_d), ctypes.c_long(off_d))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetLaserTimes")
+            if self.current_offsets != (0.0, 0.0, 0.0):
+                ox, oy, oz = self.current_offsets
+                res = self.native.dll.rtSetOffsXY(ctypes.c_double(ox), ctypes.c_double(oy))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetOffsXY")
+                if oz != 0.0:
+                    res_z = self.native.dll.rtSetOffsZ(ctypes.c_double(oz))
+                    if res_z != ERR_OK:
+                        raise RhothorError(res_z, "rtSetOffsZ")
+            if self.current_matrix is not None:
+                a11, a12, a21, a22 = self.current_matrix
+                res = self.native.dll.rtSetMatrix(ctypes.c_double(a11), ctypes.c_double(a12),
+                                                  ctypes.c_double(a21), ctypes.c_double(a22))
+                if res != ERR_OK:
+                    raise RhothorError(res, "rtSetMatrix")
+            for osc_nr, (p, w) in self.current_oscillators.items():
+                res = self.native.dll.rtSetOscillator(ctypes.c_long(osc_nr),
+                                                      ctypes.c_double(p),
+                                                      ctypes.c_double(w))
+                if res != ERR_OK:
+                    raise RhothorError(res, f"rtSetOscillator({osc_nr})")
+
     def list_close(self):
         """Closes and dispatches the command list for execution."""
-        if self.simulate:
-            res = self.sim.list_close()
-        else:
-            res = self.native.dll.rtListClose()
-        if res != ERR_OK:
-            raise RhothorError(res, "rtListClose")
+        try:
+            if self.simulate:
+                res = self.sim.list_close()
+            else:
+                res = self.native.dll.rtListClose()
+            if res != ERR_OK:
+                raise RhothorError(res, "rtListClose")
+        finally:
+            self.is_list_open = False
 
     # --- Motion & Marking Commands ---
 

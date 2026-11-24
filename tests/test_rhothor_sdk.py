@@ -33,8 +33,30 @@ class TestRhothorSDK(unittest.TestCase):
 
     def test_speed_configuration(self):
         self.galvo.set_speed(mark_speed=2000.0, jump_speed=5500.0)
+        self.assertEqual(self.galvo.current_mark_speed, 2000.0)
+        self.assertEqual(self.galvo.current_jump_speed, 5500.0)
         self.assertEqual(self.galvo.sim.mark_speed, 2000.0)
         self.assertEqual(self.galvo.sim.jump_speed, 5500.0)
+
+    def test_deferred_speed_and_delays_on_list_open(self):
+        # Configure before list_open
+        self.galvo.set_speed(mark_speed=1800.0, jump_speed=4800.0)
+        self.galvo.set_laser_delays(gate_on_delay_us=45, gate_off_delay_us=45)
+        self.galvo.set_offsets(1.0, 2.0)
+
+        # Ensure parameters are stored on controller
+        self.assertEqual(self.galvo.current_mark_speed, 1800.0)
+        self.assertEqual(self.galvo.current_jump_speed, 4800.0)
+        self.assertEqual(self.galvo.current_laser_delays, (45, 45))
+        self.assertEqual(self.galvo.current_offsets, (1.0, 2.0, 0.0))
+
+        # Open and execute list
+        self.galvo.list_open(LIST_START)
+        self.assertTrue(self.galvo.is_list_open)
+        self.galvo.jump_to(0, 0)
+        self.galvo.line_to(10, 10)
+        self.galvo.list_close()
+        self.assertFalse(self.galvo.is_list_open)
 
     def test_invalid_speed_raises_error(self):
         with self.assertRaises(RhothorError):

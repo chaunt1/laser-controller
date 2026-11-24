@@ -51,6 +51,7 @@ jobs:
           Copy-Item -Path "run_studio.bat" -Destination $ReleaseFolder
           Copy-Item -Recurse -Force -Path "docs" -Destination "$ReleaseFolder\docs"
           Copy-Item -Recurse -Force -Path "examples" -Destination "$ReleaseFolder\examples"
+          Copy-Item -Recurse -Force -Path "tools" -Destination "$ReleaseFolder\tools"
           Compress-Archive -Path $ReleaseFolder -DestinationPath "RhothorStudio-v1.0.0-windows-x64.zip" -Force
 
       - name: Upload Windows Artifact

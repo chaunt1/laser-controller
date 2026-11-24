@@ -169,17 +169,17 @@ class MainWindow(QMainWindow):
 
         # Left Container: TabWidget
         self.tabs = QTabWidget()
+        self.tab_conn = ConnectionTab(self.controller, self)
         self.tab_2d = Marking2DTab(self.controller, self)
         self.tab_3d = Dynamic3DTab(self.controller, self)
         self.tab_timing = TimingTab(self.controller, self)
         self.tab_io = IOTriggerTab(self.controller, self)
-        self.tab_conn = ConnectionTab(self.controller, self)
 
-        self.tabs.addTab(self.tab_2d, "📐 2D Khắc Nét (Ex 02)")
-        self.tabs.addTab(self.tab_3d, "🏔️ Tiêu Cự Động 3D (Ex 03)")
-        self.tabs.addTab(self.tab_timing, "⏱️ Hiệu Chuẩn Trễ (Ex 04)")
-        self.tabs.addTab(self.tab_io, "⚡ Q-Switch & I/O (Ex 05)")
-        self.tabs.addTab(self.tab_conn, "🔌 Kết Nối & Đọc Tham Số (Ex 01)")
+        self.tabs.addTab(self.tab_conn, "🔌 1. Test Kết Nối & Galvo (Diagnostics)")
+        self.tabs.addTab(self.tab_2d, "📐 2. Khắc Nét 2D (Ex 02)")
+        self.tabs.addTab(self.tab_3d, "🏔️ 3. Tiêu Cự Động 3D (Ex 03)")
+        self.tabs.addTab(self.tab_timing, "⏱️ 4. Hiệu Chuẩn Trễ (Ex 04)")
+        self.tabs.addTab(self.tab_io, "⚡ 5. Q-Switch & I/O (Ex 05)")
 
         splitter.addWidget(self.tabs)
 
@@ -309,6 +309,7 @@ class MainWindow(QMainWindow):
         self.tab_timing.log_message.connect(self.log)
         self.tab_io.vectors_changed.connect(self._on_vectors_updated)
         self.tab_io.log_message.connect(self.log)
+        self.tab_conn.vectors_changed.connect(self._on_vectors_updated)
         self.tab_conn.connection_changed.connect(self._update_status_pill)
         self.tab_conn.log_message.connect(self.log)
 

@@ -71,6 +71,26 @@ class TestStudioGUI(unittest.TestCase):
         self.assertEqual(win.tabs.count(), 5)
         self.assertTrue(win.controller.is_connected)
 
+        # Test tab connection & diagnostic test suite
+        win.tab_conn.test_origin()
+        self.assertEqual(len(win.active_strokes), 2)
+
+        win.tab_conn.test_box(50.0)
+        self.assertEqual(len(win.active_strokes), 1)
+
+        win.tab_conn.test_concentric_circles()
+        self.assertEqual(len(win.active_strokes), 4)
+
+        win.tab_conn.test_crosshair()
+        self.assertEqual(len(win.active_strokes), 2)
+
+        win.tab_conn.test_grid_matrix()
+        self.assertEqual(len(win.active_strokes), 10)
+
+        win.tab_conn.jog_move(1.0, 2.0)
+        self.assertEqual(win.tab_conn.jog_x, 1.0)
+        self.assertEqual(win.tab_conn.jog_y, 2.0)
+
         # Test tab 2D shapes
         win.tab_2d.generate_border()
         self.assertEqual(len(win.active_strokes), 1)

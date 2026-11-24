@@ -51,7 +51,8 @@ class MarkWorker(QThread):
         try:
             self.status_msg.emit("Initializing laser speeds and offsets...")
             self.controller.set_speed(self.mark_speed, self.jump_speed)
-            self.controller.set_offsets(self.offset_x, self.offset_y)
+            if self.offset_x != 0.0 or self.offset_y != 0.0:
+                self.controller.set_offsets(self.offset_x, self.offset_y)
 
             start_time = time.time()
 
@@ -64,6 +65,9 @@ class MarkWorker(QThread):
                 self.status_msg.emit(f"Executing Pass {p}/{self.passes}...")
 
                 self.controller.list_open(1)
+                self.controller.set_speed(self.mark_speed, self.jump_speed)
+                if self.offset_x != 0.0 or self.offset_y != 0.0:
+                    self.controller.set_offsets(self.offset_x, self.offset_y)
 
                 for stroke in self.strokes:
                     if self._is_aborted:
@@ -83,6 +87,11 @@ class MarkWorker(QThread):
                         elif pt_type == "ARC":
                             bf = pt.get("bf", 1.0)
                             self.controller.arc_to(px, py, bf)
+                        elif pt_type == "BURST":
+                            time_us = int(pt.get("time_us", 100))
+                            self.controller.burst(time_us)
+                        elif pt_type == "PULSE":
+                            self.controller.pulse(px, py)
                         else:  # LINE
                             if "z" in pt and abs(pz) > 0.001:
                                 self.controller.line_to_3d(px, py, pz)
@@ -148,11 +157,11 @@ class FrameWorker(QThread):
             min_y = self.bbox["min_y"] * self.scale + self.offset_y
             max_y = self.bbox["max_y"] * self.scale + self.offset_y
 
-            self.controller.set_speed(mark_speed=self.speed, jump_speed=self.speed)
             self.status_msg.emit("Tracing workpiece boundary frame (Laser OFF)...")
 
             while self._running:
                 self.controller.list_open(1)
+                self.controller.set_speed(mark_speed=self.speed, jump_speed=self.speed)
                 self.controller.jump_to(min_x, min_y)
                 self.controller.move_to(max_x, min_y)
                 self.controller.move_to(max_x, max_y)

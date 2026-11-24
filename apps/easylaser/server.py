@@ -119,11 +119,11 @@ class EasyLaserHandler(SimpleHTTPRequestHandler):
                     return
 
                 g = get_galvo()
-                g.set_speed(mark_speed, jump_speed)
-                g.set_offsets(offset_x, offset_y)
-
                 for p in range(passes):
                     g.list_open(1)
+                    g.set_speed(mark_speed, jump_speed)
+                    if offset_x != 0.0 or offset_y != 0.0:
+                        g.set_offsets(offset_x, offset_y)
                     for stroke in strokes:
                         for pt in stroke:
                             pt_type = pt.get("type")
@@ -165,8 +165,8 @@ class EasyLaserHandler(SimpleHTTPRequestHandler):
                 max_y = bbox["max_y"] * scale + oy
 
                 g = get_galvo()
-                g.set_speed(mark_speed=2000.0, jump_speed=5000.0)
                 g.list_open(1)
+                g.set_speed(mark_speed=2000.0, jump_speed=5000.0)
                 # Move around contour with laser OFF
                 g.jump_to(min_x, min_y)
                 g.move_to(max_x, min_y)

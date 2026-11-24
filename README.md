@@ -80,6 +80,7 @@ rhothor_laser_controller/
 │       ├── RhothorNative.cs        # P/Invoke C# (.NET)
 │       └── RhothorController.cs    # Lớp điều khiển hướng đối tượng C# an toàn
 ├── tools/
+│   ├── galvo_test_tool.py          # Phần mềm test kết nối Galvo & tự động chẩn đoán độc lập
 │   ├── rhothor_cli.py              # Công cụ dòng lệnh test, vẽ mẫu và chẩn đoán
 │   ├── ezd_dxf_to_rhothor.py       # Công cụ đọc file vector DXF từ EzCad và bắn laser trực tiếp
 │   ├── register_device_guid.reg    # Đăng ký GUID cho Windows 10/11 khi dùng Zadig
@@ -103,12 +104,18 @@ Tập hợp toàn bộ tính năng trong bộ thư mục `examples/` thành mộ
 
 * **Desktop GUI App**: Khởi chạy trực tiếp bằng lệnh `python rhothor_studio.py` hoặc nhấp đúp `run_studio.bat`.
 * **Đóng gói Windows .EXE Độc Lập**: Biên dịch thành 1 file duy nhất `RhothorStudio.exe` thông qua script `tools/windows_setup/build_windows_app.bat` (chạy trên Windows 7, 10, 11 không cần cài Python).
-* **5 Tab Chức Năng Tích Hợp**:
-  1. **📐 2D Khắc Nét (Ex 02)**: Sinh hình vuông, tròn đồng tâm, crosshair, đan lưới hatch và đọc file CAD `.dxf` / `.plt`.
-  2. **🏔️ Tiêu Cự Động 3D (Ex 03)**: Điều khiển trục Z ELEVAthor EL-S2, khắc bậc thang đa tầng và dốc nghiêng 3D.
-  3. **⏱️ Hiệu Chuẩn Trễ (Ex 04)**: Tinh chỉnh Gate On/Off delay và tự tạo ma trận vạch test để soi kính hiển vi.
-  4. **⚡ Q-Switch & Digital I/O (Ex 05)**: Cấu hình tần số Oscillator phát xung MOPA/Q-switch, bắn xung tĩnh (burst drilling), và bảng điều khiển I/O 8-bit (khí nén, hút khói, đèn laser đỏ, interlock).
-  5. **🔌 Kết Nối & Đọc Tham Số (Ex 01)**: Tự động kết nối phần cứng USB hoặc bộ mô phỏng, đọc thanh ghi DSP.
+* **5 Tab Chức Năng Tích Hợp (Mặc định mở Tab 1 để Test Galvo ngay)**:
+  1. **🔌 1. Test Kết Nối & Galvo (Hardware Diagnostics & Tests)**:
+     * **Tự động chẩn đoán (Full Self-Test)**: Kiểm tra DLL, kết nối USB, đọc Serial #4281, firmware DSP, vùng quét, tốc độ và bộ nhớ đệm.
+     * **Các bài test chuyển động gương Galvo (Laser OFF - An toàn tuyệt đối)**: Về gốc (0,0), Khung vuông 50x50 mm, Khung lớn 100x100 mm, Vòng tròn đồng tâm, Hồng tâm chữ thập, Lưới toạ độ 5x5 Grid.
+     * **Quét khung lặp liên tục (Continuous Framing)**: Điều chỉnh tốc độ (500 - 5000 mm/s) hỗ trợ căn chỉnh phôi vật lý.
+     * **Bàn điều khiển Jog thủ công**: Nhảy bước 0.1mm, 1mm, 5mm, 10mm kiểm tra chuyển động từng trục X/Y.
+     * **Các bài test tia Laser (Laser ON có khóa an toàn)**: Bắn xung đơn 5 µs, bắn chùm xung tĩnh (Burst), ma trận kiểm tra độ trễ.
+     * **Test cổng I/O & Đèn ngắm đỏ**: Bật/tắt Red Pointer định vị, kiểm tra tần số 50 kHz trigger.
+  2. **📐 2. Khắc Nét 2D (Ex 02)**: Sinh hình vuông, tròn đồng tâm, crosshair, đan lưới hatch và đọc file CAD `.dxf` / `.plt`.
+  3. **🏔️ 3. Tiêu Cự Động 3D (Ex 03)**: Điều khiển trục Z ELEVAthor EL-S2, khắc bậc thang đa tầng và dốc nghiêng 3D.
+  4. **⏱️ 4. Hiệu Chuẩn Trễ (Ex 04)**: Tinh chỉnh Gate On/Off delay và tự tạo ma trận vạch test để soi kính hiển vi.
+  5. **⚡ 5. Q-Switch & Digital I/O (Ex 05)**: Cấu hình tần số Oscillator phát xung MOPA/Q-switch, bắn xung tĩnh (burst drilling), và bảng điều khiển I/O 8-bit.
 * **Tài liệu chi tiết**:
   - [Sổ Tay Vận Hành Studio](docs/RHOTHOR_STUDIO_USER_GUIDE.md)
   - [Hướng Dẫn Build Windows .EXE](docs/WINDOWS_APP_BUILD_GUIDE.md)
