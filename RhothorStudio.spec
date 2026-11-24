@@ -21,9 +21,10 @@ datas = [
 # Binaries to bundle (Rhothor hardware DLLs)
 binaries = []
 dll_candidates = [
+    (os.path.join(project_root, 'sdk', 'lib', 'x64', 'rhothor.dll'), '.'),
     (os.path.join(project_root, 'sdk', 'lib', 'x64', 'rhothor.dll'), os.path.join('sdk', 'lib', 'x64')),
     (os.path.join(project_root, 'sdk', 'lib', 'x86', 'rhothor.dll'), os.path.join('sdk', 'lib', 'x86')),
-    (os.path.join(project_root, 'vendor', 'rhothor_exe', 'rhothor.dll'), '.'),
+    (os.path.join(project_root, 'vendor', 'rhothor_exe', 'src', 'rhothor.dll'), '.'),
 ]
 
 for src, dst in dll_candidates:
@@ -95,6 +96,10 @@ icon_file = os.path.join(project_root, 'resources', 'icon.ico')
 if not os.path.exists(icon_file):
     icon_file = None
 
+version_file = os.path.join(project_root, 'version_info.txt')
+if not os.path.exists(version_file):
+    version_file = None
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -116,4 +121,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=icon_file,
+    version=version_file,
 )

@@ -43,12 +43,14 @@ if %errorlevel% neq 0 (
 
 :: 4. Kiem tra file dau ra
 echo.
-echo [4/4] Kiem tra file thuc thi...
+echo [4/4] Kiem tra file thuc thi va dong goi DLL...
 if exist "dist\RhothorStudio.exe" (
+    copy /y "sdk\lib\x64\rhothor.dll" "dist\rhothor.dll" >nul
     echo.
     echo ======================================================================
     echo  [THANH CONG] File ung dung da duoc tao thanh cong tai:
     echo     dist\RhothorStudio.exe
+    echo  (Da kem file rhothor.dll phan cung)
     echo ======================================================================
     echo.
     echo Ban co the:

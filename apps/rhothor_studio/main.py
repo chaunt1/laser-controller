@@ -28,7 +28,9 @@ def run_studio(serial: int = 4281, name: str = "LPKF", initial_file: str = ""):
 
     app = QApplication(sys.argv)
     app.setApplicationName("Rhothor Laser Studio")
-    app.setOrganizationName("Rhothor")
+    app.setOrganizationName("chaunt")
+    app.setOrganizationDomain("chaunt.dev")
+    app.setProperty("publisher", "chaunt <chaunt.dev@gmail.com>")
 
     window = MainWindow(serial=serial, name=name)
 

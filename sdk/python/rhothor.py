@@ -41,10 +41,20 @@ class RhothorNative:
             if dll_path:
                 candidates.append(dll_path)
             
-            # Standard locations relative to project
+            # Standard locations relative to project, frozen app, or working dir
+            app_dir = os.path.dirname(os.path.abspath(sys.executable)) if getattr(sys, "frozen", False) else ""
+            meipass = getattr(sys, "_MEIPASS", "")
             base_dir = os.path.dirname(os.path.abspath(__file__))
             is_64bit = sys.maxsize > 2**32
             arch_dir = "x64" if is_64bit else "x86"
+
+            if app_dir:
+                candidates.append(os.path.join(app_dir, "rhothor.dll"))
+                candidates.append(os.path.join(app_dir, "sdk", "lib", arch_dir, "rhothor.dll"))
+            if meipass:
+                candidates.append(os.path.join(meipass, "rhothor.dll"))
+                candidates.append(os.path.join(meipass, "sdk", "lib", arch_dir, "rhothor.dll"))
+
             candidates.append(os.path.join(base_dir, "..", "lib", arch_dir, "rhothor.dll"))
             candidates.append(os.path.join(base_dir, "rhothor.dll"))
             candidates.append("rhothor.dll")
@@ -62,7 +72,7 @@ class RhothorNative:
                 self._bind_functions()
 
     def _bind_functions(self):
-        """Configure argtypes and restype for all functions in rhothor.dll."""
+        """Configure argtypes and restype for all functions in rhothor.dll with safe fallback."""
         d = self.dll
         c_long = ctypes.c_long
         c_double = ctypes.c_double
@@ -71,87 +81,61 @@ class RhothorNative:
         p_long = ctypes.POINTER(c_long)
         p_double = ctypes.POINTER(c_double)
         
+        def _bind(name, argtypes, restype):
+            if hasattr(d, name):
+                try:
+                    fn = getattr(d, name)
+                    fn.argtypes = argtypes
+                    fn.restype = restype
+                    return fn
+                except Exception as ex:
+                    print(f"Notice: Failed to bind {name}: {ex}")
+            return None
+
         # Accessing functions
-        d.rtGetFreeDevList.argtypes = [p_long, p_long]
-        d.rtGetFreeDevList.restype = c_long
-        d.rtInitialise.argtypes = []
-        d.rtInitialise.restype = c_long
-        d.rtSelectDevice.argtypes = [c_long]
-        d.rtSelectDevice.restype = c_long
+        _bind("rtGetFreeDevList", [p_long, p_long], c_long)
+        _bind("rtInitialise", [], c_long)
+        _bind("rtSelectDevice", [c_long], c_long)
 
         # Query functions
-        d.rtGetChannelData.argtypes = [c_long, p_long, p_long, p_double]
-        d.rtGetChannelData.restype = c_long
-        d.rtGetFieldSize.argtypes = [p_double]
-        d.rtGetFieldSize.restype = c_long
-        d.rtGetIO.argtypes = [p_long]
-        d.rtGetIO.restype = c_long
-        d.rtGetMaxSpeed.argtypes = [p_double]
-        d.rtGetMaxSpeed.restype = c_long
-        d.rtGetResolvers.argtypes = [p_double, p_double]
-        d.rtGetResolvers.restype = c_long
-        d.rtGetScannerDelay.argtypes = [p_long]
-        d.rtGetScannerDelay.restype = c_long
-        d.rtGetSerial.argtypes = [p_long]
-        d.rtGetSerial.restype = c_long
-        d.rtGetSetpointFilter.argtypes = [p_long]
-        d.rtGetSetpointFilter.restype = c_long
-        d.rtGetStatus.argtypes = [p_long]
-        d.rtGetStatus.restype = c_long
-        d.rtGetVersion.argtypes = [c_char_p, c_long]
-        d.rtGetVersion.restype = c_long
+        _bind("rtGetChannelData", [c_long, p_long, p_long, p_double], c_long)
+        _bind("rtGetFieldSize", [p_double], c_long)
+        _bind("rtGetIO", [p_long], c_long)
+        _bind("rtGetMaxSpeed", [p_double], c_long)
+        _bind("rtGetResolvers", [p_double, p_double], c_long)
+        _bind("rtGetScannerDelay", [p_long], c_long)
+        _bind("rtGetSerial", [p_long], c_long)
+        _bind("rtGetSetpointFilter", [p_long], c_long)
+        _bind("rtGetStatus", [p_long], c_long)
+        _bind("rtGetVersion", [c_char_p, c_long], c_long)
 
         # Control functions
-        d.rtAbort.argtypes = []
-        d.rtAbort.restype = c_long
-        d.rtArcTo.argtypes = [c_double, c_double, c_double]
-        d.rtArcTo.restype = c_long
-        d.rtBurst.argtypes = [c_long]
-        d.rtBurst.restype = c_long
-        d.rtJumpTo.argtypes = [c_double, c_double]
-        d.rtJumpTo.restype = c_long
-        d.rtLineTo.argtypes = [c_double, c_double]
-        d.rtLineTo.restype = c_long
-        d.rtListClose.argtypes = []
-        d.rtListClose.restype = c_long
-        d.rtListOpen.argtypes = [c_long]
-        d.rtListOpen.restype = c_long
-        d.rtMoveTo.argtypes = [c_double, c_double]
-        d.rtMoveTo.restype = c_long
-        d.rtPulse.argtypes = [c_double, c_double]
-        d.rtPulse.restype = c_long
-        d.rtSetIO.argtypes = [c_long, c_long]
-        d.rtSetIO.restype = c_long
-        d.rtSetLaser.argtypes = [c_bool]
-        d.rtSetLaser.restype = c_long
-        d.rtSetLaserTimes.argtypes = [c_long, c_long]
-        d.rtSetLaserTimes.restype = c_long
-        d.rtSetMatrix.argtypes = [c_double, c_double, c_double, c_double]
-        d.rtSetMatrix.restype = c_long
-        d.rtSetMaxSpeed.argtypes = [c_double]
-        d.rtSetMaxSpeed.restype = c_long
-        d.rtSetOffsXY.argtypes = [c_double, c_double]
-        d.rtSetOffsXY.restype = c_long
-        d.rtSetOffsZ.argtypes = [c_double]
-        d.rtSetOffsZ.restype = c_long
-        d.rtSetOscillator.argtypes = [c_long, c_double, c_double]
-        d.rtSetOscillator.restype = c_long
-        d.rtSetSpeed.argtypes = [c_double]
-        d.rtSetSpeed.restype = c_long
-        d.rtSetJumpSpeed.argtypes = [c_double]
-        d.rtSetJumpSpeed.restype = c_long
-        d.rtSleep.argtypes = [c_long]
-        d.rtSleep.restype = c_long
+        _bind("rtAbort", [], c_long)
+        _bind("rtArcTo", [c_double, c_double, c_double], c_long)
+        _bind("rtBurst", [c_long], c_long)
+        _bind("rtJumpTo", [c_double, c_double], c_long)
+        _bind("rtLineTo", [c_double, c_double], c_long)
+        _bind("rtListClose", [], c_long)
+        _bind("rtListOpen", [c_long], c_long)
+        _bind("rtMoveTo", [c_double, c_double], c_long)
+        _bind("rtPulse", [c_double, c_double], c_long)
+        _bind("rtSetIO", [c_long, c_long], c_long)
+        _bind("rtSetLaser", [c_bool], c_long)
+        _bind("rtSetLaserTimes", [c_long, c_long], c_long)
+        _bind("rtSetMatrix", [c_double, c_double, c_double, c_double], c_long)
+        _bind("rtSetMaxSpeed", [c_double], c_long)  # Present in v11, gracefully skipped in v7.5
+        _bind("rtSetOffsXY", [c_double, c_double], c_long)
+        _bind("rtSetOffsZ", [c_double], c_long)
+        _bind("rtSetOscillator", [c_long, c_double, c_double], c_long)
+        _bind("rtSetSpeed", [c_double], c_long)
+        _bind("rtSetJumpSpeed", [c_double], c_long)
+        _bind("rtSleep", [c_long], c_long)
 
         # 3D functions
-        d.rtMoveTo3D.argtypes = [c_double, c_double, c_double]
-        d.rtMoveTo3D.restype = c_long
-        d.rtLineTo3D.argtypes = [c_double, c_double, c_double]
-        d.rtLineTo3D.restype = c_long
-        d.rtJumpTo3D.argtypes = [c_double, c_double, c_double]
-        d.rtJumpTo3D.restype = c_long
-        d.rtPulse3D.argtypes = [c_double, c_double, c_double]
-        d.rtPulse3D.restype = c_long
+        _bind("rtMoveTo3D", [c_double, c_double, c_double], c_long)
+        _bind("rtLineTo3D", [c_double, c_double, c_double], c_long)
+        _bind("rtJumpTo3D", [c_double, c_double, c_double], c_long)
+        _bind("rtPulse3D", [c_double, c_double, c_double], c_long)
 
 
 class RhothorController:
@@ -309,6 +293,18 @@ class RhothorController:
             res = self.native.dll.rtSetJumpSpeed(ctypes.c_double(jump_speed))
             if res != ERR_OK:
                 raise RhothorError(res, "rtSetJumpSpeed")
+
+    def set_max_speed(self, max_speed: float):
+        """Sets max speed if supported by firmware/DLL (v11+), or safely ignores on v7.5."""
+        if self.simulate:
+            if hasattr(self.sim, "set_max_speed"):
+                self.sim.set_max_speed(max_speed)
+            return
+
+        if hasattr(self.native.dll, "rtSetMaxSpeed"):
+            res = self.native.dll.rtSetMaxSpeed(ctypes.c_double(max_speed))
+            if res != ERR_OK:
+                raise RhothorError(res, "rtSetMaxSpeed")
 
     def set_laser_delays(self, gate_on_delay_us: int, gate_off_delay_us: int):
         """Configures laser gate on and off delays in microseconds."""

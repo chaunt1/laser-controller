@@ -2,14 +2,14 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/chaunt1/laser-controller?color=00d2ff&logo=github)](https://github.com/chaunt1/laser-controller/releases/latest)
 [![Windows Build](https://img.shields.io/badge/Windows%20App-RhothorStudio.exe%20(x64)-00c853?logo=windows)](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-windows-x64.zip)
-[![Linux Build](https://img.shields.io/badge/Linux%20App-x86__64-orange?logo=linux)](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-linux-x86_64.tar.gz)
+[![Publisher](https://img.shields.io/badge/Publisher-chaunt%20%3Cchaunt.dev%40gmail.com%3E-blue)](mailto:chaunt.dev@gmail.com)
 
 Dự án phần mềm điều khiển, chẩn đoán và phát triển ứng dụng cho hệ thống quét chùm tia laser **Newson Rhothor™ 2D & 3D** (tương thích máy **LPKF Laser & Electronics**).
 
 > [!TIP]
 > **TẢI VỀ ỨNG DỤNG BẢN WINDOWS (.EXE) SẴN DÙNG**:
-> * 🪟 **[Tải RhothorStudio-v1.0.0-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-windows-x64.zip)** (38.9 MB) - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
-> * 🐧 **[Tải RhothorStudio-v1.0.0-linux-x86_64.tar.gz](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-linux-x86_64.tar.gz)** (59.3 MB) - Bản thực thi độc lập cho Linux.
+> * 🪟 **[Tải RhothorStudio-v1.0.0-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-windows-x64.zip)** - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
+> * **Tác giả / Nhà phát hành (Publisher):** `chaunt <chaunt.dev@gmail.com>`
 
 ![Rhothor Controller Architecture](demo_all.svg)
 

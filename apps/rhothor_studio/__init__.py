@@ -5,4 +5,5 @@ and digital I/O control into a professional workstation interface.
 """
 
 __version__ = "1.0.0"
-__author__ = "Rhothor Laser Controller Team"
+__author__ = "chaunt <chaunt.dev@gmail.com>"
+__publisher__ = "chaunt <chaunt.dev@gmail.com>"

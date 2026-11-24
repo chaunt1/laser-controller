@@ -152,8 +152,8 @@ class MainWindow(QMainWindow):
         brand_lbl.setStyleSheet("font-size: 16px; font-weight: 900; color: #00d2ff; letter-spacing: 0.5px;")
         top_bar.addWidget(brand_lbl)
 
-        sub_lbl = QLabel("Newson RT-CU Master Workstation (LPKF #4281)")
-        sub_lbl.setStyleSheet("color: #64748b; font-size: 12px; padding-left: 10px;")
+        sub_lbl = QLabel("LPKF #4281 | Publisher: chaunt <chaunt.dev@gmail.com>")
+        sub_lbl.setStyleSheet("color: #64748b; font-size: 11px; padding-left: 10px;")
         top_bar.addWidget(sub_lbl)
 
         top_bar.addStretch()

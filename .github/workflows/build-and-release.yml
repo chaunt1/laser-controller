@@ -45,6 +45,8 @@ jobs:
           $ReleaseFolder = "RhothorStudio-v1.0.0-windows-x64"
           New-Item -ItemType Directory -Force -Path $ReleaseFolder
           Copy-Item -Path "dist\RhothorStudio.exe" -Destination $ReleaseFolder
+          Copy-Item -Path "sdk\lib\x64\rhothor.dll" -Destination "$ReleaseFolder\rhothor.dll" -Force
+          Copy-Item -Recurse -Force -Path "sdk\lib" -Destination "$ReleaseFolder\sdk\lib"
           Copy-Item -Path "README.md" -Destination $ReleaseFolder
           Copy-Item -Path "run_studio.bat" -Destination $ReleaseFolder
           Copy-Item -Recurse -Force -Path "docs" -Destination "$ReleaseFolder\docs"
@@ -57,50 +59,45 @@ jobs:
           name: RhothorStudio-v1.0.0-windows-x64
           path: RhothorStudio-v1.0.0-windows-x64.zip
 
-  build-linux:
-    name: Build Linux App
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgl1 libglx-mesa0 libegl1 libxkbcommon-x11-0 libfontconfig1
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Build executable with PyInstaller
-        run: |
-          pyinstaller --clean RhothorStudio.spec
-
-      - name: Package Linux Release Archive
-        run: |
-          RELEASE_DIR="RhothorStudio-v1.0.0-linux-x86_64"
-          mkdir -p "$RELEASE_DIR"
-          cp dist/RhothorStudio "$RELEASE_DIR/"
-          cp README.md run_studio.sh "$RELEASE_DIR/"
-          cp -r docs examples "$RELEASE_DIR/"
-          tar -czvf "RhothorStudio-v1.0.0-linux-x86_64.tar.gz" "$RELEASE_DIR"
-
-      - name: Upload Linux Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: RhothorStudio-v1.0.0-linux-x86_64
-          path: RhothorStudio-v1.0.0-linux-x86_64.tar.gz
+  # [Tam thoi comment phan build linux theo yeu cau]
+  # build-linux:
+  #   name: Build Linux App
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Set up Python 3.11
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
+  #     - name: Install system dependencies
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y libgl1 libglx-mesa0 libegl1 libxkbcommon-x11-0 libfontconfig1
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r requirements.txt
+  #     - name: Build executable with PyInstaller
+  #       run: |
+  #         pyinstaller --clean RhothorStudio.spec
+  #     - name: Package Linux Release Archive
+  #       run: |
+  #         RELEASE_DIR="RhothorStudio-v1.0.0-linux-x86_64"
+  #         mkdir -p "$RELEASE_DIR"
+  #         cp dist/RhothorStudio "$RELEASE_DIR/"
+  #         cp README.md run_studio.sh "$RELEASE_DIR/"
+  #         cp -r docs examples "$RELEASE_DIR/"
+  #         tar -czvf "RhothorStudio-v1.0.0-linux-x86_64.tar.gz" "$RELEASE_DIR"
+  #     - name: Upload Linux Artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: RhothorStudio-v1.0.0-linux-x86_64
+  #         path: RhothorStudio-v1.0.0-linux-x86_64.tar.gz
 
   release:
     name: Publish GitHub Release
-    needs: [build-windows, build-linux]
+    needs: [build-windows]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
@@ -112,17 +109,11 @@ jobs:
         with:
           name: RhothorStudio-v1.0.0-windows-x64
 
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: RhothorStudio-v1.0.0-linux-x86_64
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             RhothorStudio-v1.0.0-windows-x64.zip
-            RhothorStudio-v1.0.0-linux-x86_64.tar.gz
           name: Release ${{ github.ref_name || 'v1.0.0' }}
           draft: false
           prerelease: false
@@ -131,10 +122,14 @@ jobs:
             ## ⚡ Rhothor Laser Studio v1.0.0
             
             Phần mềm máy tính điều khiển và chẩn đoán đầu quét chùm tia laser **Newson Rhothor™ RT-CU** (hệ máy LPKF).
+            **Publisher:** chaunt <chaunt.dev@gmail.com>
 
-            ### 📦 Các bản phát hành tải về (Downloads):
-            * **`RhothorStudio-v1.0.0-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit). Chỉ cần giải nén và nhấp đúp file `RhothorStudio.exe` để chạy ngay, không cần cài Python hay thư viện.
-            * **`RhothorStudio-v1.0.0-linux-x86_64.tar.gz`**: Bản thực thi độc lập cho Linux x86_64.
+            ### 📦 Bản phát hành tải về (Windows):
+            * **`RhothorStudio-v1.0.0-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
+              - Không cần cài Python hay bất kỳ thư viện ngoài nào.
+              - Đã giải quyết triệt để lỗi tương thích thư viện DLL `rtSetMaxSpeed` với firmware v7.5.
+              - Tích hợp sẵn `rhothor.dll` chuẩn x64 và x86 trong thư mục ứng dụng.
+              - Chỉ cần giải nén và nhấp đúp file **`RhothorStudio.exe`** để chạy ngay.
 
             ### 🚀 Tính năng chính trong bản phát hành này:
             1. **2D Vector Marking**: Hỗ trợ nạp file CAD `.dxf` (EzCad/AutoCAD) & `.plt` (CorelDraw), tạo hình chuẩn, đan lưới hatch, tính quãng đường và thời gian quét.
