@@ -82,6 +82,19 @@ class TestRhothorSDK(unittest.TestCase):
         self.assertEqual(self.galvo.sim.current_y, 10.0)
         self.assertEqual(self.galvo.sim.current_z, 20.0)
 
+    def test_dsp_firmware_version(self):
+        v = self.galvo.get_version()
+        self.assertIn("v7.5", v)
+
+    def test_reconnect_sequence(self):
+        self.galvo.disconnect()
+        self.assertFalse(self.galvo.is_connected)
+        self.galvo.connect()
+        self.assertTrue(self.galvo.is_connected)
+        self.galvo.list_open(LIST_START)
+        self.galvo.jump_to(0, 0)
+        self.galvo.list_close()
+
 
 if __name__ == "__main__":
     unittest.main()

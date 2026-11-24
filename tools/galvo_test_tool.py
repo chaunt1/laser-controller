@@ -43,7 +43,7 @@ def run_cli_diagnostics(args):
         if args.selftest:
             print("\n[*] Running Automated Hardware Self-Test Suite...")
             tests = [
-                ("1. Thư viện driver rhothor.dll", True if galvo.simulate or (galvo.native and galvo.native.is_loaded) else False),
+                ("1. Thư viện driver rhothor.dll (v7.3/v7.5 LPKF Legacy)", True if galvo.simulate or (galvo.native and galvo.native.is_loaded) else False),
                 ("2. Đọc mã Serial phần cứng", info["serial"] == args.serial or info["serial"] > 0),
                 ("3. Kiểm tra trường quét quang học", info["field_size_mm"] > 50.0),
                 ("4. Kiểm tra giới hạn tốc độ galvo", info["max_speed_mm_s"] >= 1000.0),

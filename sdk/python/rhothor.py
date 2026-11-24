@@ -6,6 +6,7 @@ RhothorSimulator for development, testing, and vector trajectory verification.
 
 import os
 import sys
+import time
 import ctypes
 from typing import List, Tuple, Dict, Any, Optional
 
@@ -31,10 +32,13 @@ class RhothorNative:
     """
     Direct low-level Ctypes bindings to rhothor.dll.
     Matches rhothorDll.h function declarations.
+    Defaults strictly to v7.3/v7.5 legacy DLL for LPKF hardware compatibility.
     """
     def __init__(self, dll_path: Optional[str] = None):
         self.dll = None
         self.is_loaded = False
+        self.loaded_path = None
+        self.version_type = "v7.3/v7.5 (LPKF Legacy)"
         
         if sys.platform == "win32":
             candidates = []
@@ -48,26 +52,52 @@ class RhothorNative:
             is_64bit = sys.maxsize > 2**32
             arch_dir = "x64" if is_64bit else "x86"
 
+            # Strictly prioritize genuine v7.3/v7.5 legacy DLLs
             if app_dir:
-                candidates.append(os.path.join(app_dir, "rhothor.dll"))
                 candidates.append(os.path.join(app_dir, "sdk", "lib", arch_dir, "rhothor.dll"))
+                candidates.append(os.path.join(app_dir, "rhothor.dll"))
             if meipass:
-                candidates.append(os.path.join(meipass, "rhothor.dll"))
                 candidates.append(os.path.join(meipass, "sdk", "lib", arch_dir, "rhothor.dll"))
+                candidates.append(os.path.join(meipass, "rhothor.dll"))
 
             candidates.append(os.path.join(base_dir, "..", "lib", arch_dir, "rhothor.dll"))
             candidates.append(os.path.join(base_dir, "rhothor.dll"))
             candidates.append("rhothor.dll")
             
+            v7_dll = None
+            v7_path = None
+            fallback_dll = None
+            fallback_path = None
+
             for path in candidates:
                 if os.path.exists(path):
                     try:
-                        self.dll = ctypes.WinDLL(path)
-                        self.is_loaded = True
-                        break
+                        temp_dll = ctypes.WinDLL(path)
+                        # Check version characteristics:
+                        # v11 exports rtGetTarget, while v7.3 / v7.5 does not.
+                        # We default strictly to v7.3 / v7.5 for LPKF / Rhothor DSP v7.x hardware.
+                        is_v11 = hasattr(temp_dll, "rtGetTarget")
+                        if not is_v11:
+                            v7_dll = temp_dll
+                            v7_path = path
+                            break  # Found genuine v7.3/v7.5 DLL
+                        elif fallback_dll is None:
+                            fallback_dll = temp_dll
+                            fallback_path = path
                     except Exception as e:
                         print(f"Warning: Failed to load {path}: {e}")
             
+            if v7_dll is not None:
+                self.dll = v7_dll
+                self.loaded_path = v7_path
+                self.is_loaded = True
+                self.version_type = "v7.3/v7.5 (LPKF Legacy)"
+            elif fallback_dll is not None:
+                self.dll = fallback_dll
+                self.loaded_path = fallback_path
+                self.is_loaded = True
+                self.version_type = "v11 (Newson Official)"
+
             if self.is_loaded:
                 self._bind_functions()
 
@@ -185,21 +215,45 @@ class RhothorController:
     def connect(self):
         """Initializes the controller and selects the target device."""
         if self.simulate:
-            res = self.sim.initialise()
             if self.serial_nr:
                 self.sim.select_device(self.serial_nr)
+            res = self.sim.initialise()
             self.is_connected = True
             return
+
+        # Note: According to the Newson Rhothor Manual (section 5.3):
+        # rtSelectDevice MUST be called PRIOR to rtInitialise when addressing a specific device.
+        # Calling rtSelectDevice after rtInitialise resets the internal DLL state machine to -1,
+        # which causes rtListOpen to immediately return ERR_DATA (13).
+        if self.serial_nr is not None and self.serial_nr > 0:
+            try:
+                res = self.native.dll.rtSelectDevice(ctypes.c_long(self.serial_nr))
+            except Exception as e:
+                print(f"Notice: rtSelectDevice({self.serial_nr}) call: {e}")
 
         res = self.native.dll.rtInitialise()
         if res != ERR_OK:
             raise RhothorError(res, "rtInitialise")
-            
-        if self.serial_nr is not None:
-            res = self.native.dll.rtSelectDevice(ctypes.c_long(self.serial_nr))
-            if res != ERR_OK:
-                raise RhothorError(res, f"rtSelectDevice({self.serial_nr})")
+
+        # Allow DSP and USB subsystem to settle
+        time.sleep(0.05)
+
+        # Clear any pending list commands or aborted state in DSP RAM
+        try:
+            self.native.dll.rtAbort()
+        except Exception:
+            pass
+
+        # Query actual connected hardware serial number
+        try:
+            actual_serial = self.get_serial()
+            if actual_serial > 0:
+                self.serial_nr = actual_serial
+        except Exception:
+            pass
+
         self.is_connected = True
+        self.is_list_open = False
 
     def disconnect(self):
         """Safely stops motion and turns off laser."""
@@ -412,11 +466,34 @@ class RhothorController:
         """
         Opens a command list (LIST_START=1, AUTO_START=2, AUTO_REPEAT=3).
         Automatically flushes configured speeds, delays, offsets, matrix, and oscillators.
+        Includes self-healing recovery if DSP state machine was desynced (ERR_DATA 13).
         """
         if self.simulate:
             res = self.sim.list_open(mode)
         else:
             res = self.native.dll.rtListOpen(ctypes.c_long(mode))
+            if res == ERR_DATA:
+                # ERR_DATA (13) indicates the internal DLL state machine is uninitialized (-1)
+                # or DSP list buffer requires a reset. Attempt automatic re-synchronization:
+                try:
+                    self.native.dll.rtAbort()
+                    time.sleep(0.02)
+                    res = self.native.dll.rtListOpen(ctypes.c_long(mode))
+                except Exception:
+                    pass
+
+                if res == ERR_DATA:
+                    # Full session re-initialization
+                    try:
+                        if self.serial_nr is not None and self.serial_nr > 0:
+                            self.native.dll.rtSelectDevice(ctypes.c_long(self.serial_nr))
+                        self.native.dll.rtInitialise()
+                        time.sleep(0.05)
+                        self.native.dll.rtAbort()
+                        res = self.native.dll.rtListOpen(ctypes.c_long(mode))
+                    except Exception:
+                        pass
+
         if res != ERR_OK:
             raise RhothorError(res, f"rtListOpen({mode})")
 

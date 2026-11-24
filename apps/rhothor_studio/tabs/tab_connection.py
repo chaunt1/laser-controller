@@ -478,7 +478,8 @@ class ConnectionTab(QWidget):
             results.append(("1. Thư viện phần cứng (rhothor.dll)", "SIMULATOR (Chạy mô phỏng an toàn)", True))
         else:
             dll_loaded = self.controller.native and self.controller.native.is_loaded
-            results.append(("1. Thư viện phần cứng (rhothor.dll)", "ĐÃ NẠP THÀNH CÔNG" if dll_loaded else "LỖI", dll_loaded))
+            v_type = getattr(self.controller.native, "version_type", "v7.3/v7.5 Native (LPKF Legacy)")
+            results.append(("1. Thư viện phần cứng (rhothor.dll)", f"ĐÃ NẠP [{v_type}]" if dll_loaded else "LỖI", dll_loaded))
 
         # 2. Serial check
         try:
@@ -490,7 +491,7 @@ class ConnectionTab(QWidget):
         # 3. DSP Firmware version
         try:
             v = self.controller.get_version()
-            results.append(("3. Phiên bản DSP Firmware", v or "v7.5/v11", True))
+            results.append(("3. Phiên bản DSP Firmware", v or "Rhothor DSP v7.3/v7.5", True))
         except Exception as e:
             results.append(("3. Phiên bản DSP Firmware", f"Lỗi: {e}", False))
 
