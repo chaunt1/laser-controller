@@ -4,6 +4,6 @@ Unifies all SDK capabilities, vector parsing, 3D dynamic focusing, delay calibra
 and digital I/O control into a professional workstation interface.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __author__ = "chaunt <chaunt.dev@gmail.com>"
 __publisher__ = "chaunt <chaunt.dev@gmail.com>"

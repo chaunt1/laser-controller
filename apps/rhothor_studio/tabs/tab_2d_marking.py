@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, pyqtSignal
 
 from apps.easylaser.parsers import parse_dxf_content, parse_plt_content
+from sdk.python.cad_parsers import load_any_cad_drawing
 from sdk.python.rhothor import RhothorController
 
 
@@ -255,8 +256,15 @@ class Marking2DTab(QWidget):
 
     # --- File Loading & Transformation ---
     def open_file_dialog(self):
+        filter_str = (
+            "Tất cả định dạng hỗ trợ (*.dxf *.svg *.ai *.plt *.hpgl *.lbrn *.lbrn2 *.ezd *.ez3 *.png *.jpg *.jpeg *.bmp);;"
+            "File Vector CAD (*.dxf *.svg *.ai *.plt *.hpgl);;"
+            "File Dự Án Laser (*.lbrn *.lbrn2 *.ezd *.ez3);;"
+            "Hình Ảnh Bitmap / Raster (*.png *.jpg *.jpeg *.bmp);;"
+            "Tất cả file (*.*)"
+        )
         path, _ = QFileDialog.getOpenFileName(
-            self, "Mở file bản vẽ Laser", "", "CAD Files (*.dxf *.plt *.hpgl *.hpg);;Tất cả file (*.*)"
+            self, "Mở file bản vẽ Laser", "", filter_str
         )
         if path:
             self.load_file(path)
@@ -271,18 +279,11 @@ class Marking2DTab(QWidget):
 
     def load_file(self, filepath: str):
         try:
-            with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-
-            ext = os.path.splitext(filepath)[1].lower()
-            if ext in (".plt", ".hpgl", ".hpg"):
-                parsed = parse_plt_content(content)
-            else:
-                parsed = parse_dxf_content(content)
-
+            parsed = load_any_cad_drawing(filepath)
             filename = os.path.basename(filepath)
             self._update_artwork(parsed["strokes"], filename)
-            self.log_message.emit(f"Loaded CAD file: {filename} ({len(parsed['strokes'])} strokes)")
+            self.lbl_file_info.setText(f"Tệp: {filename} [{parsed.get('format', 'CAD')}] ({len(parsed['strokes'])} nét)")
+            self.log_message.emit(f"Loaded CAD file: {filename} [{parsed.get('format')}] ({len(parsed['strokes'])} strokes)")
         except Exception as e:
             QMessageBox.critical(self, "Lỗi đọc file", f"Không thể đọc file {filepath}:\n{e}")
 

@@ -11,6 +11,10 @@ import unittest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from apps.easylaser.parsers import parse_dxf_content, parse_plt_content
+from sdk.python.cad_parsers import (
+    parse_svg_content, parse_lightburn_content, parse_ai_content,
+    load_any_cad_drawing
+)
 
 
 class TestVectorParsers(unittest.TestCase):
@@ -55,6 +59,29 @@ EOF"""
         self.assertGreater(len(res["strokes"]), 0)
         self.assertIn("bbox", res)
 
+    def test_svg_parsing(self):
+        sample_svg = '''<svg width="50mm" height="50mm" viewBox="0 0 50 50">
+            <rect x="5" y="5" width="40" height="40"/>
+            <circle cx="25" cy="25" r="10"/>
+            <path d="M 10 10 L 40 40 Z"/>
+        </svg>'''
+        res = parse_svg_content(sample_svg)
+        self.assertEqual(res["format"], "SVG")
+        self.assertGreaterEqual(len(res["strokes"]), 3)
+        self.assertIn("bbox", res)
+
+    def test_lightburn_parsing(self):
+        sample_lbrn = '''{
+            "CutSetting": [{"Priority": 0, "Speed": 1200, "Power": 50}],
+            "Shapes": [
+                {"Type": "Rect", "X": -10, "Y": -10, "Width": 20, "Height": 20},
+                {"Type": "Ellipse", "X": 0, "Y": 0, "Rx": 8, "Ry": 8}
+            ]
+        }'''
+        res = parse_lightburn_content(sample_lbrn, is_json=True)
+        self.assertEqual(res["format"], "LightBurn")
+        self.assertEqual(len(res["strokes"]), 2)
+
 
 class TestStudioGUI(unittest.TestCase):
 
@@ -68,8 +95,14 @@ class TestStudioGUI(unittest.TestCase):
         from apps.rhothor_studio.main_window import MainWindow
 
         win = MainWindow(serial=4281, name="LPKF")
-        self.assertEqual(win.tabs.count(), 5)
+        self.assertEqual(win.tabs.count(), 6)
         self.assertTrue(win.controller.is_connected)
+
+        # Test tab CNC Drawing Importer & Preview
+        win.tab_cnc.load_sample_svg()
+        self.assertGreater(len(win.active_strokes), 0)
+        win.tab_cnc.auto_fit_to_field()
+        win.tab_cnc.center_to_origin()
 
         # Test tab connection & diagnostic test suite
         win.tab_conn.test_origin()

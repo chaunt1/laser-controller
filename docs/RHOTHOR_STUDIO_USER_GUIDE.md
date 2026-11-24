@@ -22,9 +22,34 @@ Giao diện phần mềm được chia làm 3 khu vực chính:
 
 ---
 
-## 2. Chi Tiết Các Tab Chức Năng (Tương Ứng Bộ File @examples)
+## 2. Chi Tiết Các Tab Chức Năng
 
-### Tab 1: 📐 2D Khắc Nét & Nhập Bản Vẽ CAD (Kế Thừa Example 02)
+### Tab 1: 🔌 Test Kết Nối Phần Cứng & Gương Galvo (Diagnostics)
+- Tự động nhận diện thiết bị USB `#4281` (LPKF).
+- Tự động chẩn đoán 6 bước: Nạp DLL v7.3/v7.5, kiểm tra Serial, Firmware, Khổ quét, Giới hạn tốc độ và Bộ đệm lệnh DSP.
+- Thử nghiệm 6 bài test chuyển động gương an toàn (Laser OFF 100%): Về gốc (0,0), Khung 50x50, Khung 100x100, Vòng tròn đồng tâm, Hồng tâm chữ thập, Lưới 5x5.
+- Điều khiển nhích gương thủ công (Manual Jog X/Y).
+
+---
+
+### Tab 2: 📂 Bản Vẽ CNC & Preview Đa Định Dạng (CAD/CAM Importer)
+- **Hỗ trợ toàn bộ định dạng bản vẽ công nghiệp**:
+  - **Vector CAD**: `.DXF` (AutoCAD, EZCAD), `.SVG` (W3C standard), `.AI` (Adobe Illustrator), `.PLT` / `.HPGL` (CorelDRAW).
+  - **Dự án Laser**: `.LBRN` & `.LBRN2` (LightBurn 1.x & 2.x), `.EZD` & `.EZ3` (EZCAD2 & EZCAD3).
+  - **Khắc ảnh Bitmap / Raster**: `.BMP`, `.JPG`, `.JPEG`, `.PNG`.
+- **Chế độ khắc ảnh nghệ thuật (Photo Engraving)**:
+  - *Quét ngang hai chiều (Hatch Scan)*: Quét raster bám sát hình ảnh.
+  - *Tán sắc nghệ thuật (Floyd-Steinberg Dither)*: Tán sắc hạt phục vụ khắc ảnh chân dung chân thực.
+  - *Dò viền đối tượng (Contour Edge)*: Trích xuất đường viền bao.
+- **Công cụ căn chỉnh hình học**:
+  - `Auto-Fit to Field`: Tự động co giãn bản vẽ vừa vặn 85% khổ quét galvo.
+  - `Center to Origin (0,0)`: Đưa trọng tâm bản vẽ về tâm quang học.
+  - `Scale`, `Xoay 90°/180°/270°`, `Lật đối xứng X/Y`, `Dịch tọa độ X/Y`.
+- **Quét khung phôi an toàn (Red Frame - Laser OFF)** & **Xuất file SVG chuẩn hóa**.
+
+---
+
+### Tab 3: 📐 Khắc Nét 2D & Hình Mẫu Chuẩn (Kế Thừa Example 02)
 - **Hình mẫu định hình có sẵn**:
   - `Khung Viền 100x100 mm`: Khung chuẩn kiểm tra kích thước quang học.
   - `Vòng Tròn Đồng Tâm`: 4 vòng bán kính 10, 20, 30, 40 mm (sử dụng lệnh `ArcTo`).
@@ -47,7 +72,7 @@ Giao diện phần mềm được chia làm 3 khu vực chính:
 
 ---
 
-### Tab 2: 🏔️ Tiêu Cự Động 3D (Kế Thừa Example 03: ELEVAthor EL-S2)
+### Tab 4: 🏔️ Tiêu Cự Động 3D (Kế Thừa Example 03: ELEVAthor EL-S2)
 Dành cho máy tích hợp trục Z tiêu cự quang học động **Newson ELEVAthor EL-S2** (phạm vi Z 147 mm, tốc độ 4000 mm/s):
 - **Bề mặt bậc thang (Stepped Planes)**:
   - Khắc 3 hình vuông đồng tâm trên 3 mặt phẳng tiêu cự khác nhau (ví dụ: Z = -10 mm, Z = 0 mm, Z = +10 mm) mà không cần di chuyển bàn nâng cơ khí.
@@ -63,7 +88,7 @@ Dành cho máy tích hợp trục Z tiêu cự quang học động **Newson ELEV
 
 ---
 
-### Tab 3: ⏱️ Hiệu Chuẩn Độ Trễ Tia Laser (Kế Thừa Example 04)
+### Tab 5: ⏱️ Hiệu Chuẩn Độ Trễ Tia Laser (Kế Thừa Example 04)
 Hiệu chuẩn thời gian đóng/mở cổng quang để triệt tiêu hiện tượng cháy đốm hoặc hụt nét:
 - **Tham số**:
   - `Gate On Delay`: Trễ phát laser sau khi gương galvo bắt đầu tăng tốc.
@@ -74,7 +99,7 @@ Hiệu chuẩn thời gian đóng/mở cổng quang để triệt tiêu hiện t
 
 ---
 
-### Tab 4: ⚡ Q-Switch & Digital I/O (Kế Thừa Example 05)
+### Tab 6: ⚡ Q-Switch & Digital I/O (Kế Thừa Example 05)
 Cấu hình phát xung laser công suất cao và điều khiển thiết bị ngoại vi qua cổng DB25:
 - **Bộ dao động xung phần cứng (Oscillator)**:
   - Kích hoạt Oscillator 1, 2 hoặc 3 (Osc 3 xuất tín hiệu trigger ra chân IO7 cho nguồn laser Q-switched / MOPA).
@@ -84,18 +109,6 @@ Cấu hình phát xung laser công suất cao và điều khiển thiết bị n
 - **Bảng điều khiển 8-Bit Digital I/O**:
   - **Output**: Bật/tắt trực tiếp Khí nén thổi xỉ (Air Assist), Quạt hút khói (Exhaust), Đèn laser đỏ định vị (Red Guide), Đèn báo sẵn sàng (Pilot Lamp).
   - **Input**: Đèn LED xanh/trắng giám sát cảm biến an toàn: Cửa buồng gia công (Interlock), Bàn đạp chân (Footswitch), Cảm biến nước làm mát (Chiller Flow OK), Tín hiệu sẵn sàng từ nguồn laser.
-
----
-
-### Tab 5: 🔌 Kết Nối & Đọc Tham Số Phần Cứng (Kế Thừa Example 01)
-- Nhập số Serial thiết bị (mặc định: `4281` cho hệ thống LPKF).
-- Nút **Kết nối / Ngắt kết nối** an toàn.
-- Nút **Đọc thông số (Query)**: Hiển thị bảng chi tiết:
-  - Vùng quét quang học (201.65 mm).
-  - Tốc độ tối đa (6000 mm/s).
-  - Độ trễ scanner delay (60 µs).
-  - Phiên bản firmware DSP.
-  - Thanh ghi trạng thái Status byte.
 
 ---
 

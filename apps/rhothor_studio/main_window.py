@@ -18,6 +18,7 @@ from sdk.python.rhothor import RhothorController
 from .canvas import LaserCanvasView
 from .workers import MarkWorker, FrameWorker
 from .tabs.tab_connection import ConnectionTab
+from .tabs.tab_cnc_preview import CNCPreviewTab
 from .tabs.tab_2d_marking import Marking2DTab
 from .tabs.tab_3d_dynamic import Dynamic3DTab
 from .tabs.tab_timing import TimingTab
@@ -29,7 +30,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, serial: int = 4281, name: str = "LPKF", parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Rhothor Laser Studio - Newson Galvo Controller")
+        self.setWindowTitle("Rhothor Laser Studio v1.1.0 - LPKF Galvo Controller")
         self.resize(1340, 840)
         self.setMinimumSize(1024, 700)
 
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
         # 1. Top Bar
         top_bar = QHBoxLayout()
 
-        brand_lbl = QLabel("⚡ RHOTHOR LASER STUDIO")
+        brand_lbl = QLabel("⚡ RHOTHOR LASER STUDIO v1.1.0")
         brand_lbl.setStyleSheet("font-size: 16px; font-weight: 900; color: #00d2ff; letter-spacing: 0.5px;")
         top_bar.addWidget(brand_lbl)
 
@@ -170,16 +171,18 @@ class MainWindow(QMainWindow):
         # Left Container: TabWidget
         self.tabs = QTabWidget()
         self.tab_conn = ConnectionTab(self.controller, self)
+        self.tab_cnc = CNCPreviewTab(self.controller, self)
         self.tab_2d = Marking2DTab(self.controller, self)
         self.tab_3d = Dynamic3DTab(self.controller, self)
         self.tab_timing = TimingTab(self.controller, self)
         self.tab_io = IOTriggerTab(self.controller, self)
 
-        self.tabs.addTab(self.tab_conn, "🔌 1. Test Kết Nối & Galvo (Diagnostics)")
-        self.tabs.addTab(self.tab_2d, "📐 2. Khắc Nét 2D (Ex 02)")
-        self.tabs.addTab(self.tab_3d, "🏔️ 3. Tiêu Cự Động 3D (Ex 03)")
-        self.tabs.addTab(self.tab_timing, "⏱️ 4. Hiệu Chuẩn Trễ (Ex 04)")
-        self.tabs.addTab(self.tab_io, "⚡ 5. Q-Switch & I/O (Ex 05)")
+        self.tabs.addTab(self.tab_conn, "🔌 1. Test Kết Nối (Diagnostics)")
+        self.tabs.addTab(self.tab_cnc, "📂 2. Bản Vẽ CNC & Preview (CAD/CAM)")
+        self.tabs.addTab(self.tab_2d, "📐 3. Khắc Nét 2D (Ex 02)")
+        self.tabs.addTab(self.tab_3d, "🏔️ 4. Tiêu Cự Động 3D (Ex 03)")
+        self.tabs.addTab(self.tab_timing, "⏱️ 5. Hiệu Chuẩn Trễ (Ex 04)")
+        self.tabs.addTab(self.tab_io, "⚡ 6. Q-Switch & I/O (Ex 05)")
 
         splitter.addWidget(self.tabs)
 
@@ -301,6 +304,9 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(bottom_box)
 
         # Wire cross-tab signals
+        self.tab_cnc.vectors_changed.connect(self._on_vectors_updated)
+        self.tab_cnc.frame_changed.connect(self.canvas.set_frame_preview)
+        self.tab_cnc.log_message.connect(self.log)
         self.tab_2d.vectors_changed.connect(self._on_vectors_updated)
         self.tab_2d.log_message.connect(self.log)
         self.tab_3d.vectors_changed.connect(self._on_vectors_updated)

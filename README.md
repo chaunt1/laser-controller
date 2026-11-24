@@ -1,14 +1,15 @@
 # Rhothor™ Laser Galvo Deflection Controller & SDK
 
 [![GitHub Release](https://img.shields.io/github/v/release/chaunt1/laser-controller?color=00d2ff&logo=github)](https://github.com/chaunt1/laser-controller/releases/latest)
-[![Windows Build](https://img.shields.io/badge/Windows%20App-RhothorStudio.exe%20(x64)-00c853?logo=windows)](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-windows-x64.zip)
+[![Windows Build](https://img.shields.io/badge/Windows%20App-RhothorStudio.exe%20(x64)-00c853?logo=windows)](https://github.com/chaunt1/laser-controller/releases/download/v1.1.0/RhothorStudio-v1.1.0-windows-x64.zip)
 [![Publisher](https://img.shields.io/badge/Publisher-chaunt%20%3Cchaunt.dev%40gmail.com%3E-blue)](mailto:chaunt.dev@gmail.com)
 
 Dự án phần mềm điều khiển, chẩn đoán và phát triển ứng dụng cho hệ thống quét chùm tia laser **Newson Rhothor™ 2D & 3D** (tương thích máy **LPKF Laser & Electronics**).
 
 > [!TIP]
-> **TẢI VỀ ỨNG DỤNG BẢN WINDOWS (.EXE) SẴN DÙNG**:
-> * 🪟 **[Tải RhothorStudio-v1.0.0-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.0.0/RhothorStudio-v1.0.0-windows-x64.zip)** - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
+> **TẢI VỀ ỨNG DỤNG BẢN WINDOWS (.EXE) SẴN DÙNG (v1.1.0)**:
+> * 🪟 **[Tải RhothorStudio-v1.1.0-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.1.0/RhothorStudio-v1.1.0-windows-x64.zip)** - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
+> * **Hỗ trợ toàn diện bản vẽ CNC & Laser:** Vector (`.DXF`, `.SVG`, `.AI`, `.PLT`), Dự án Laser (`.LBRN`/`.LBRN2` LightBurn, `.EZD`/`.EZ3` EZCAD) & Khắc ảnh Shading (`.PNG`, `.JPG`, `.BMP`).
 > * **Tác giả / Nhà phát hành (Publisher):** `chaunt <chaunt.dev@gmail.com>`
 
 ![Rhothor Controller Architecture](demo_all.svg)
