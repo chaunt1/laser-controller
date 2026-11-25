@@ -101,6 +101,12 @@ class TestRhothorSDK(unittest.TestCase):
         self.assertLessEqual(self.galvo.current_mark_speed, 2000.0)
         self.assertLessEqual(self.galvo.current_jump_speed, 2000.0)
 
+    def test_digital_io_and_latch_pulse(self):
+        self.galvo.set_io(0x55, 0xFF)
+        self.assertEqual(self.galvo.get_io(), 0x55)
+        self.galvo.send_latch_pulse(pin_bit=0)
+        self.assertEqual(self.galvo.get_io(), 0x54)
+
 
 if __name__ == "__main__":
     unittest.main()

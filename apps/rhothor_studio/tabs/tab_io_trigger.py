@@ -8,7 +8,7 @@ from typing import List, Dict, Any
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
     QPushButton, QGroupBox, QSpinBox, QDoubleSpinBox, QCheckBox,
-    QMessageBox
+    QMessageBox, QDialog, QTextEdit
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
@@ -140,6 +140,40 @@ class IOTriggerTab(QWidget):
             self.in_labels.append(lbl)
 
         layout.addWidget(io_group)
+
+        # 4. Fiber Laser Source Sync & Latch Panel
+        fiber_group = QGroupBox("4. ĐỒNG BỘ NGUỒN FIBER LASER & CHỐT CÔNG SUẤT (FIBER LASER ADAPTER)")
+        fiber_layout = QGridLayout(fiber_group)
+
+        self.btn_send_latch = QPushButton("⚡ PHÁT XUNG LATCH CHỐT CÔNG SUẤT (PIN 9)")
+        self.btn_send_latch.setStyleSheet("""
+            QPushButton {
+                background-color: #7c3aed;
+                color: white;
+                font-weight: bold;
+                padding: 9px;
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #8b5cf6; }
+        """)
+        self.btn_send_latch.clicked.connect(self.send_latch_pulse_ui)
+        fiber_layout.addWidget(self.btn_send_latch, 0, 0)
+
+        self.btn_show_wiring = QPushButton("📖 XEM SƠ ĐỒ ĐẤU DÂY X7 SANG DB-25 FIBER LASER")
+        self.btn_show_wiring.setStyleSheet("""
+            QPushButton {
+                background-color: #059669;
+                color: white;
+                font-weight: bold;
+                padding: 9px;
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #10b981; }
+        """)
+        self.btn_show_wiring.clicked.connect(self.show_wiring_dialog)
+        fiber_layout.addWidget(self.btn_show_wiring, 0, 1)
+
+        layout.addWidget(fiber_group)
         layout.addStretch()
 
     def _update_freq_label(self, val):
@@ -204,3 +238,83 @@ class IOTriggerTab(QWidget):
                     lbl.setStyleSheet("color: #64748b; font-size: 11px;")
         except Exception:
             pass
+
+    def send_latch_pulse_ui(self):
+        """Manually sends a latch pulse to lock D0-D7 power on fiber laser."""
+        try:
+            if hasattr(self.controller, "send_latch_pulse"):
+                self.controller.send_latch_pulse(pin_bit=0)
+            self.log_message.emit("Đã phát xung Latch chốt công suất trên Pin 9 của Nguồn Laser.")
+            QMessageBox.information(
+                self, "Phát Xung Latch Thành Công",
+                "Đã phát xung kích sườn trên Chân 9 (Latch)!\n"
+                "Nguồn Fiber Laser đã nạp và lưu giá trị công suất hiện tại vào thanh ghi DAC nội."
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Lỗi Phát Xung", f"Không thể gửi xung Latch:\n{e}")
+
+    def show_wiring_dialog(self):
+        """Displays interactive pinout and wiring schematic for Fiber Laser integration."""
+        diag = QDialog(self)
+        diag.setWindowTitle("Sơ Đồ Đấu Nối Cổng X7 Galvo Sang Nguồn Fiber Laser (Raycus / JPT / Max)")
+        diag.resize(800, 620)
+        d_layout = QVBoxLayout(diag)
+
+        text = QTextEdit(diag)
+        text.setReadOnly(True)
+        text.setFontFamily("Consolas, Courier New, monospace")
+        text.setStyleSheet("background-color: #0f172a; color: #f8fafc; font-size: 12px; line-height: 1.4;")
+        
+        schematic = """
+========================================================================================
+⚡ SƠ ĐỒ ĐẤU NỐI CHI TIẾT: CỔNG X7 (GALVO NEWSON) ---> CỔNG DB-25 (NGUỒN FIBER LASER)
+   Áp dụng cho nguồn: Raycus, JPT, Max Photonics, IPG (Chuẩn công nghiệp Q-Switched/MOPA)
+========================================================================================
+
+1. MẠCH NGUỒN NUÔI & KHÓA AN TOÀN:
+   -------------------------------------------------------------------------------------
+   Cổng X7 Galvo (Pin 21 - DC +5V)  ----->  Nguồn Laser (Pin 23 - Emergency Stop / Interlock)
+   Cổng X7 Galvo (Pin 21 - DC +5V)  ----->  Nguồn Laser (Pin 18 - Main Diode Pump / MO)
+   Cổng X7 Galvo (Pin 8 - GND Mass) ----->  Nguồn Laser (Pin 10, 14, 15, 24, 25 - GND)
+
+2. CÀI ĐẶT CÔNG SUẤT (D0 - D7):
+   -------------------------------------------------------------------------------------
+   Cổng X7 Galvo (Pin 21 - DC +5V)  ----->  Nguồn Laser (Pin 1, 2, 3, 4, 5, 6, 7, 8: D0-D7)
+   (*) Nối cả 8 chân lên +5V tương ứng mức công suất cực đại 100% (Mã nhị phân 0xFF = 255).
+       Nếu muốn đổi công suất, có thể qua một bộ công tắc gạt DIP-Switch 8 vị trí.
+
+3. MẠCH ĐỆM CHUYỂN ĐỔI TÍN HIỆU VI SAI RS-485 SANG TTL (Dùng 3 IC MAX485 hoặc SN65HVD485):
+   Cấp nguồn IC MAX485: Chân 8 (VCC) nối +5V (Pin 21 Galvo); Chân 5 (GND) nối Pin 8 Galvo.
+   Chân 2 (RE) và Chân 3 (DE) của cả 3 IC MAX485 nối xuống GND (Chế độ Thu Receiver).
+   -------------------------------------------------------------------------------------
+   [Tín hiệu MỞ TIA (Emission Gate)]
+   Cổng X7 Galvo (Pin 19 - IO6+)  ----->  MAX485 #1 (Chân A)
+   Cổng X7 Galvo (Pin 6  - IO6-)  ----->  MAX485 #1 (Chân B)
+   MAX485 #1 Đầu ra TTL (Chân RO) ----->  Nguồn Laser (Pin 19 - Emission Gate / Modulation)
+
+   [Tín hiệu TẦN SỐ XUNG (Sync / PRR)]
+   Cổng X7 Galvo (Pin 20 - IO7+)  ----->  MAX485 #2 (Chân A)
+   Cổng X7 Galvo (Pin 7  - IO7-)  ----->  MAX485 #2 (Chân B)
+   MAX485 #2 Đầu ra TTL (Chân RO) ----->  Nguồn Laser (Pin 20 - Sync / Pulse Repetition)
+
+   [Tín hiệu CHỐT CÔNG SUẤT (Latch)]
+   Cổng X7 Galvo (Pin 18 - IO5+)  ----->  MAX485 #3 (Chân A)
+   Cổng X7 Galvo (Pin 5  - IO5-)  ----->  MAX485 #3 (Chân B)
+   MAX485 #3 Đầu ra TTL (Chân RO) ----->  Nguồn Laser (Pin 9 - Latch Clock)
+
+========================================================================================
+💡 LƯU Ý QUAN TRỌNG:
+- TUYỆT ĐỐI KHÔNG cắm cáp DB-25 thẳng từ Galvo X7 sang Nguồn Laser (Chân 10,11,23 trên Galvo
+  là nguồn 12VDC, nếu cắm thẳng sẽ làm hỏng IC logic của Nguồn Laser).
+- Tín hiệu IO6 và IO7 tự động đồng bộ theo từng micro-giây với chuyển động của gương Galvo.
+- Khi bắt đầu bấm 'Khắc', phần mềm sẽ tự động gửi xung Latch kích hoạt công suất!
+========================================================================================
+        """
+        text.setText(schematic)
+        d_layout.addWidget(text)
+
+        btn_close = QPushButton("ĐÃ HIỂU & ĐÓNG", diag)
+        btn_close.clicked.connect(diag.accept)
+        d_layout.addWidget(btn_close)
+
+        diag.exec_()

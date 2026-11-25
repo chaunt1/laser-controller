@@ -49,10 +49,17 @@ class MarkWorker(QThread):
 
     def run(self):
         try:
-            self.status_msg.emit("Initializing laser speeds and offsets...")
+            self.status_msg.emit("Initializing laser speeds, power latch, and offsets...")
             self.controller.set_speed(self.mark_speed, self.jump_speed)
             if self.offset_x != 0.0 or self.offset_y != 0.0:
                 self.controller.set_offsets(self.offset_x, self.offset_y)
+
+            # Automatically trigger laser latch pulse on IO5/Pin 9 to latch power register
+            if hasattr(self.controller, "send_latch_pulse"):
+                try:
+                    self.controller.send_latch_pulse()
+                except Exception:
+                    pass
 
             start_time = time.time()
 

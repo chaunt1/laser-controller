@@ -509,6 +509,56 @@ class RhothorController:
             if res != ERR_OK:
                 raise RhothorError(res, f"rtSetOscillator({nr})")
 
+    # --- Digital I/O & Laser Latch Controls ---
+
+    def set_io(self, value: int, mask: int = 0xFF):
+        """Sets digital output pins using bit mask."""
+        if self.simulate:
+            if hasattr(self.sim, "set_io"):
+                self.sim.set_io(value, mask)
+            return
+        res = self.native.dll.rtSetIO(ctypes.c_long(value), ctypes.c_long(mask))
+        if res != ERR_OK:
+            raise RhothorError(res, f"rtSetIO({value}, {mask})")
+
+    def get_io(self) -> int:
+        """Reads 8-bit digital input pins."""
+        if self.simulate:
+            if hasattr(self.sim, "get_io"):
+                _, val = self.sim.get_io()
+                return val
+            return 0
+        val = ctypes.c_long()
+        res = self.native.dll.rtGetIO(ctypes.byref(val))
+        if res != ERR_OK:
+            raise RhothorError(res, "rtGetIO")
+        return val.value
+
+    def wait_io(self, value: int, mask: int):
+        """Waits until digital input pins match specified pattern."""
+        if self.simulate:
+            return
+        res = self.native.dll.rtWaitIO(ctypes.c_long(value), ctypes.c_long(mask))
+        if res != ERR_OK:
+            raise RhothorError(res, f"rtWaitIO({value}, {mask})")
+
+    def send_latch_pulse(self, pin_bit: int = 0):
+        """
+        Sends a latch pulse on the designated digital I/O pin (default bit 0 / IO5 / Latch pin).
+        Pulses HIGH -> brief delay -> LOW (or LOW -> HIGH -> LOW) to latch power setting on Fiber Laser.
+        """
+        import time
+        mask = 1 << pin_bit
+        # Drive HIGH
+        try:
+            self.set_io(value=mask, mask=mask)
+            time.sleep(0.005)  # 5 ms pulse width (standard fiber laser requires >= 10 us)
+            # Drive LOW
+            self.set_io(value=0, mask=mask)
+            time.sleep(0.001)
+        except Exception:
+            pass
+
     # --- List Management ---
 
     def list_open(self, mode: int = LIST_START):
