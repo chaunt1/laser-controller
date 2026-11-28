@@ -46,20 +46,26 @@ class MarkWorker(QThread):
             self.controller.abort()
         except Exception:
             pass
+        try:
+            if hasattr(self.controller, "set_all_io_ports"):
+                self.controller.set_all_io_ports(False)
+        except Exception:
+            pass
 
     def run(self):
         try:
-            self.status_msg.emit("Initializing laser speeds, power latch, and offsets...")
+            self.status_msg.emit("Khởi tạo tốc độ galvo, độ trễ laser và chốt công suất Pin 9...")
             self.controller.set_speed(self.mark_speed, self.jump_speed)
             if self.offset_x != 0.0 or self.offset_y != 0.0:
                 self.controller.set_offsets(self.offset_x, self.offset_y)
 
-            # Automatically trigger laser latch pulse on IO5/Pin 9 to latch power register
+            # Automatically trigger laser latch pulse on IO5 (Chân 5/18 -> Pin 9 Latch on Fiber Laser)
             if hasattr(self.controller, "send_latch_pulse"):
                 try:
-                    self.controller.send_latch_pulse()
-                except Exception:
-                    pass
+                    self.status_msg.emit("⚡ Phát xung Latch chốt công suất trên IO5 (Chân 5/18 -> Pin 9 Laser)...")
+                    self.controller.send_latch_pulse(pin_bit=4)
+                except Exception as e:
+                    self.status_msg.emit(f"Cảnh báo Latch: {e}")
 
             start_time = time.time()
 
@@ -69,7 +75,7 @@ class MarkWorker(QThread):
                     return
 
                 self.progress.emit(p, self.passes)
-                self.status_msg.emit(f"Executing Pass {p}/{self.passes}...")
+                self.status_msg.emit(f"Đang khắc lượt {p}/{self.passes} (IO6: Gate ON, IO7: Sync 50kHz)...")
 
                 self.controller.list_open(1)
                 self.controller.set_speed(self.mark_speed, self.jump_speed)
@@ -113,10 +119,22 @@ class MarkWorker(QThread):
                 stats = self.controller.get_simulation_stats()
             stats["actual_elapsed_seconds"] = round(elapsed, 3)
 
-            self.status_msg.emit(f"Marking complete! ({self.passes} passes in {elapsed:.2f}s)")
+            # Ensure laser emission gate is closed after job completion
+            try:
+                if hasattr(self.controller, "set_all_io_ports"):
+                    self.controller.set_all_io_ports(False)
+            except Exception:
+                pass
+
+            self.status_msg.emit(f"✅ Khắc laser hoàn tất! ({self.passes} lượt trong {elapsed:.2f}s)")
             self.finished.emit(stats)
 
         except Exception as e:
+            try:
+                if hasattr(self.controller, "set_all_io_ports"):
+                    self.controller.set_all_io_ports(False)
+            except Exception:
+                pass
             self.error.emit(str(e))
 
 

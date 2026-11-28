@@ -195,7 +195,8 @@ class RhothorController:
         self.current_laser_delays: Optional[Tuple[int, int]] = None
         self.current_matrix: Optional[Tuple[float, float, float, float]] = None
         self.current_offsets: Tuple[float, float, float] = (0.0, 0.0, 0.0)
-        self.current_oscillators: Dict[int, Tuple[float, float]] = {}
+        # Default Oscillator 3 for Fiber Laser Sync/PRR on IO7 (50 kHz, 20 µs period, 5 µs pulse width)
+        self.current_oscillators: Dict[int, Tuple[float, float]] = {3: (20.0, 5.0)}
         
         # Try native DLL if not explicitly in simulate mode
         if not simulate and sys.platform == "win32":
@@ -700,6 +701,44 @@ class RhothorController:
                                                       ctypes.c_double(w))
                 if res != ERR_OK:
                     raise RhothorError(res, f"rtSetOscillator({osc_nr})")
+
+            # Enable Fiber Laser IO outputs in the DSP list command stream:
+            # Bit 4 (IO5 - Latch Pin 9), Bit 5 (IO6 - Gate Pin 19), Bit 6 (IO7 - Sync/PRR Pin 20)
+            # 112 = 16 (IO5) + 32 (IO6) + 64 (IO7) = 0x70
+            try:
+                self.native.dll.rtSetIO(ctypes.c_long(112), ctypes.c_long(112))
+            except Exception:
+                pass
+
+    def set_laser_frequency(self, frequency_khz: float, pulse_width_us: float = 3.0):
+        """
+        Configures the laser pulse repetition frequency (PRR) on IO7 (Oscillator 3) for Fiber Laser.
+        frequency_khz: Frequency in kHz (e.g. 20.0 to 100.0 kHz, default 50.0 kHz).
+        pulse_width_us: Pulse width in microseconds (default 3.0 µs).
+        """
+        if frequency_khz <= 0:
+            raise ValueError("Laser frequency must be positive.")
+        period_us = 1000.0 / frequency_khz
+        self.set_oscillator(nr=3, period_us=period_us, pulse_width_us=pulse_width_us)
+
+    def test_laser_emission(self, duration_s: float = 1.0, frequency_khz: float = 50.0, pulse_width_us: float = 3.0):
+        """
+        Fires a brief continuous emission test sequence according to the Fiber Laser pinout:
+        1. Emits Latch pulse on IO5 (Pin 5/18 -> Laser Pin 9) to lock power setting.
+        2. Configures Oscillator 3 on IO7 (Pin 7/20 -> Laser Pin 20 Sync/PRR).
+        3. Drives IO6 (Pin 6/19 -> Laser Pin 19 Gate) and IO7 HIGH for duration_s.
+        4. Turns all outputs OFF safely.
+        """
+        import time
+        self.send_latch_pulse(pin_bit=4)
+        time.sleep(0.01)
+        self.set_laser_frequency(frequency_khz, pulse_width_us)
+        # Drive IO6 (Gate) and IO7 (Sync) HIGH
+        mask = (1 << 5) | (1 << 6)  # Bit 5 (IO6), Bit 6 (IO7)
+        self.set_io(value=mask, mask=mask)
+        time.sleep(duration_s)
+        # Turn OFF
+        self.set_io(value=0, mask=mask)
 
     def list_close(self):
         """Closes and dispatches the command list for execution."""

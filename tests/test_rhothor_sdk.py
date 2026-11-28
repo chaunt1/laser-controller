@@ -126,6 +126,19 @@ class TestRhothorSDK(unittest.TestCase):
         self.galvo.set_all_io_ports(False)
         self.assertEqual(self.galvo.get_io() & 0x7F, 0x00)
 
+    def test_fiber_laser_sync_and_emission(self):
+        # Configure 50 kHz on Oscillator 3
+        self.galvo.set_laser_frequency(frequency_khz=50.0, pulse_width_us=3.0)
+        self.assertIn(3, self.galvo.current_oscillators)
+        period, width = self.galvo.current_oscillators[3]
+        self.assertAlmostEqual(period, 20.0)
+        self.assertAlmostEqual(width, 3.0)
+
+        # Test emission sequence
+        self.galvo.test_laser_emission(duration_s=0.05, frequency_khz=50.0, pulse_width_us=3.0)
+        # All outputs must be safe OFF after emission test
+        self.assertEqual(self.galvo.get_io() & 0x7F, 0x00)
+
 
 if __name__ == "__main__":
     unittest.main()

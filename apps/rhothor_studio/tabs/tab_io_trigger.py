@@ -441,6 +441,20 @@ class IOTriggerTab(QWidget):
         self.btn_send_latch.clicked.connect(self.send_latch_pulse_ui)
         fiber_layout.addWidget(self.btn_send_latch, 0, 0)
 
+        self.btn_test_3ch = QPushButton("🔥 TEST ĐỒNG BỘ 3 KÊNH (LATCH 9 -> GATE 19 + SYNC 20 2s)")
+        self.btn_test_3ch.setStyleSheet("""
+            QPushButton {
+                background-color: #b45309;
+                color: white;
+                font-weight: bold;
+                padding: 9px;
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #d97706; }
+        """)
+        self.btn_test_3ch.clicked.connect(self.test_fiber_3channel_sync)
+        fiber_layout.addWidget(self.btn_test_3ch, 0, 1)
+
         self.btn_show_wiring = QPushButton("📖 XEM SƠ ĐỒ ĐẤU DÂY X7 SANG DB-25 FIBER LASER")
         self.btn_show_wiring.setStyleSheet("""
             QPushButton {
@@ -453,7 +467,7 @@ class IOTriggerTab(QWidget):
             QPushButton:hover { background-color: #10b981; }
         """)
         self.btn_show_wiring.clicked.connect(self.show_wiring_dialog)
-        fiber_layout.addWidget(self.btn_show_wiring, 0, 1)
+        fiber_layout.addWidget(self.btn_show_wiring, 0, 2)
 
         layout.addWidget(fiber_group)
         layout.addStretch()
@@ -775,6 +789,46 @@ class IOTriggerTab(QWidget):
             )
         except Exception as e:
             QMessageBox.critical(self, "Lỗi Phát Xung", f"Không thể gửi xung Latch:\n{e}")
+
+    def test_fiber_3channel_sync(self):
+        """Tests the exact 3-channel Fiber Laser sequence: Latch (IO5) -> Gate (IO6) & Sync (IO7)."""
+        try:
+            self.log_message.emit("⚡ Bắt đầu test đồng bộ 3 kênh Fiber Laser theo sơ đồ...")
+            # Step 1: Latch pulse on IO5 (Pin 5/18) -> Laser Pin 9
+            self.controller.send_latch_pulse(pin_bit=4)
+            self.log_message.emit("1. Đã phát xung Latch trên IO5 (Pin 5/18 -> Pin 9 Laser).")
+            # Step 2: Set Oscillator 3 for IO7 (50 kHz)
+            if hasattr(self.controller, "set_laser_frequency"):
+                self.controller.set_laser_frequency(50.0, 3.0)
+            # Step 3: Turn ON IO6 (Pin 6/19 -> Pin 19 Gate) and IO7 (Pin 7/20 -> Pin 20 Sync) for 2s
+            mask = (1 << 5) | (1 << 6)
+            self.controller.set_io(value=mask, mask=mask)
+            self.btn_test_3ch.setEnabled(False)
+            self.btn_test_3ch.setText("⏳ ĐANG PHÁT TIA TEST (2s)...")
+            self.log_message.emit("2. Đang BẬT IO6 (Gate) và IO7 (Sync 50kHz) trong 2.0s...")
+
+            # Use single shot timer to turn off after 2s without blocking GUI
+            QTimer.singleShot(2000, self._on_finish_fiber_test)
+        except Exception as e:
+            QMessageBox.critical(self, "Lỗi Test Đồng Bộ", f"Lỗi:\n{e}")
+
+    def _on_finish_fiber_test(self):
+        try:
+            mask = (1 << 5) | (1 << 6)
+            self.controller.set_io(value=0, mask=mask)
+            self.btn_test_3ch.setEnabled(True)
+            self.btn_test_3ch.setText("🔥 TEST ĐỒNG BỘ 3 KÊNH (LATCH 9 -> GATE 19 + SYNC 20 2s)")
+            self.log_message.emit("3. Đã TẮT IO6 và IO7. Hoàn tất chu trình test đồng bộ 3 kênh!")
+            QMessageBox.information(
+                self, "Hoàn Tất Test Đồng Bộ 3 Kênh",
+                "Đã hoàn thành chu trình test theo đúng sơ đồ nối dây của bạn:\n\n"
+                "1. IO5 (Chân 5/18): Đã phát xung Latch chốt công suất tới Pin 9 Laser.\n"
+                "2. IO6 (Chân 6/19): Đã bật tín hiệu Mở Tia (Emission Gate) tới Pin 19 Laser trong 2s.\n"
+                "3. IO7 (Chân 7/20): Đã kích xung tần số 50 kHz (Sync/PRR) tới Pin 20 Laser trong 2s.\n\n"
+                "Nếu nguồn laser đã bật MO và cấp 5V chân 23 (Interlock), laser sẽ phát tia chuẩn xác!"
+            )
+        except Exception as e:
+            self.log_message.emit(f"Lỗi khi ngắt test: {e}")
 
     # -------------------------------------------------------------
     # Dialogs: Measurement & Wiring

@@ -42,7 +42,7 @@ jobs:
       - name: Package Windows Release Archive
         shell: pwsh
         run: |
-          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.1" }
+          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.2" }
           $ReleaseFolder = "RhothorStudio-$Tag-windows-x64"
           New-Item -ItemType Directory -Force -Path $ReleaseFolder
           Copy-Item -Path "dist\RhothorStudio.exe" -Destination $ReleaseFolder
@@ -116,35 +116,31 @@ jobs:
         with:
           files: |
             RhothorStudio-*-windows-x64.zip
-          name: Release ${{ github.ref_name || 'v1.2.1' }}
+          name: Release ${{ github.ref_name || 'v1.2.2' }}
           draft: false
           prerelease: false
           generate_release_notes: true
           body: |
-            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.1' }}
+            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.2' }}
             
             Phần mềm máy tính điều khiển và chẩn đoán đầu quét chùm tia laser **Newson Rhothor™ RT-CU** (hệ máy LPKF).
             **Publisher:** chaunt <chaunt.dev@gmail.com>
 
             ### 📦 Bản phát hành tải về (Windows):
-            * **`RhothorStudio-${{ github.ref_name || 'v1.2.1' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
+            * **`RhothorStudio-${{ github.ref_name || 'v1.2.2' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
               - Không cần cài Python hay bất kỳ thư viện ngoài nào.
               - Mặc định tuyệt đối thư viện driver chuẩn `v7.3/v7.5 LPKF Legacy Native` (`rhothor.dll`).
               - Đã giải quyết triệt để lỗi DSP buffer `rtListOpen` [13] và tự động ép trần an toàn tốc độ `rtSetJumpSpeed` theo `MaxSpeed` (2000 mm/s).
               - Chỉ cần giải nén và nhấp đúp file **`RhothorStudio.exe`** để chạy ngay.
 
-            ### 🚀 Tính năng mới trong bản phát hành v1.2.1:
-            1. **Chế Độ Test Tự Động Bật/Tắt Tuần Tự Từng Cặp Chân (Auto Step Port Tester)**:
-               - Cho phép bật lần lượt từng cặp chân tín hiệu vi sai RS-485 từ **IO1 (Chân 1/14)** đến **IO7 (Chân 7/20)** trong khoảng thời gian tùy chọn (mặc định 5.0 giây/cổng).
-               - Tích hợp thanh đếm ngược tiến trình thời gian thực, bảng hướng dẫn cắm que đo VOM chi tiết cho từng cổng (đo điện áp vi sai que Đỏ vào IO+, que Đen vào IO- để kiểm tra mức điện áp thực xuất +2.5V ~ +4.5V).
-               - Hỗ trợ nút Chuyển Cổng Tiếp Theo (Next Port) và Dừng khẩn cấp (Stop) an toàn.
-            2. **Bảng Điều Khiển & Giám Sát Thủ Công 7 Cổng I/O X7 Hoàn Thiện**:
-               - Cung cấp nút gạt bật/tắt độc lập cho từng cặp chân IO1 đến IO7, nút Bật Tất Cả (All On) và Tắt Tất Cả (All Off) phục vụ kiểm tra thông mạch và đo đạc phần cứng.
-               - Cửa sổ hướng dẫn đo VOM tích hợp sẵn trong ứng dụng.
-            3. **Công Cụ Dòng Lệnh Độc Lập `tools/test_io_ports.py`**:
-               - Script kiểm tra chân I/O chạy trực tiếp từ terminal độc lập không phụ thuộc GUI, hỗ trợ countdown visualizer và kiểm tra cổng đơn lẻ hoặc chu kỳ tự động.
-            4. **Đồng Bộ Nguồn Fiber Laser Công Nghiệp & Xung Chốt Công Suất Pin 9 (v1.2.0)**:
-               - Tự động phát xung Latch chốt giá trị thanh ghi công suất $D_0 \dots D_7$ trước mỗi nét khắc laser.
-               - Sơ đồ đấu nối chuyển đổi RS-485 sang TTL logic 5V bằng MAX485 cho nguồn Raycus/JPT/Max/IPG.
-            5. **Bộ Đọc Bản Vẽ CNC Toàn Năng**:
-               - Hỗ trợ toàn diện Vector CAD (`.DXF`, `.SVG`, `.AI`, `.PLT`), Dự án Laser (`.LBRN`/`.LBRN2`, `.EZD`/`.EZ3`) & Khắc ảnh Shading (`.PNG`, `.JPG`, `.BMP`).
+            ### 🚀 Tính năng mới trong bản phát hành v1.2.2:
+            1. **Đồng Bộ Phát Tia Hoàn Chỉnh Theo Sơ Đồ Ghép Nối Nguồn Fiber Laser**:
+               - **IO6 (Chân 6/19)** $\rightarrow$ MAX485 #1 $\rightarrow$ **Pin 19 (Emission Gate)**: Bật/tắt phát tia đồng bộ thời gian thực theo từng nét vector `line_to` và tắt khi nhảy `jump_to`.
+               - **IO7 (Chân 7/20)** $\rightarrow$ MAX485 #2 $\rightarrow$ **Pin 20 (Sync / PRR)**: Xuất chuỗi xung tần số cao từ Oscillator 3 (20 kHz – 100 kHz) đồng bộ theo sườn lên của Gate.
+               - **IO5 (Chân 5/18)** $\rightarrow$ MAX485 #3 $\rightarrow$ **Pin 9 (Latch Clock)**: Tự động phát xung Latch chốt công suất 8-bit $D_0 \dots D_7$ vào DAC nội của nguồn laser trước mỗi job khắc.
+            2. **Bổ Sung Nút Bắn Thử Tia Laser 1 Giây (Test Emission 1s)**:
+               - Tích hợp ngay trên Tab 2 (Khắc Nét 2D) và Tab 5 (I/O) cho phép thợ kiểm tra tia laser hoặc đèn báo Emission của nguồn phát trước khi đưa phôi vào máy.
+            3. **Điều Chỉnh Tần Số Xung (PRR) Trực Tiếp Trên Tab Khắc 2D**:
+               - Thêm ô chỉnh tần số xung (10 kHz – 150 kHz, mặc định 50 kHz) và độ rộng xung (0.5 µs – 20 µs) kết nối trực tiếp vào Oscillator 3 phần cứng.
+            4. **Kế Thừa Đầy Đủ Các Tính Năng Trước**:
+               - Chế độ Test tự động tuần tự 7 cặp chân (Auto Step Tester 1/14 -> 7/20), bộ đọc bản vẽ CAD toàn năng (.DXF, .SVG, .AI, .PLT, .LBRN, .EZD) và khắc ảnh chân dung Shading.

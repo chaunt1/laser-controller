@@ -163,11 +163,49 @@ class Marking2DTab(QWidget):
         self.btn_export_svg.clicked.connect(self.export_svg)
         params_layout.addWidget(self.btn_export_svg, 1, 2, 1, 2)
 
+        # Fiber Laser Frequency (PRR) on IO7 (Oscillator 3)
+        params_layout.addWidget(QLabel("Tần số xung Fiber (Sync/PRR IO7):"), 2, 0)
+        self.spin_freq = QSpinBox()
+        self.spin_freq.setRange(10, 150)
+        self.spin_freq.setValue(50)
+        self.spin_freq.setSuffix(" kHz")
+        self.spin_freq.valueChanged.connect(self._update_laser_frequency)
+        params_layout.addWidget(self.spin_freq, 2, 1)
+
+        # Fiber Laser Pulse Width on IO7
+        params_layout.addWidget(QLabel("Độ rộng xung (Pulse Width):"), 2, 2)
+        self.spin_pulse_width = QDoubleSpinBox()
+        self.spin_pulse_width.setRange(0.5, 20.0)
+        self.spin_pulse_width.setValue(3.0)
+        self.spin_pulse_width.setSuffix(" µs")
+        self.spin_pulse_width.valueChanged.connect(self._update_laser_frequency)
+        params_layout.addWidget(self.spin_pulse_width, 2, 3)
+
+        # Hardware Mapping Label & Test Emission 1s Button
+        hw_info = QLabel("💡 <b>Sơ đồ chân Fiber Laser:</b> IO6 (Chân 6/19)=Mở Tia (Gate) | IO7 (Chân 7/20)=Tần số xung (Sync) | IO5 (Chân 5/18)=Chốt CS Pin 9")
+        hw_info.setStyleSheet("color: #38bdf8; font-size: 11px;")
+        params_layout.addWidget(hw_info, 3, 0, 1, 4)
+
+        self.btn_test_emission = QPushButton("⚡ THỬ BẮN TIA LASER 1 GIÂY (TEST EMISSION 1s)")
+        self.btn_test_emission.setStyleSheet("""
+            QPushButton {
+                background-color: #d97706;
+                color: white;
+                font-weight: bold;
+                padding: 7px;
+                border-radius: 4px;
+            }
+            QPushButton:hover { background-color: #b45309; }
+        """)
+        self.btn_test_emission.clicked.connect(self.test_emission_1s)
+        params_layout.addWidget(self.btn_test_emission, 4, 0, 1, 4)
+
         layout.addWidget(params_group)
         layout.addStretch()
 
         # Load default example
         self.generate_all_example2_shapes()
+        self._update_laser_frequency()
 
     # --- Shape Generators ---
     def generate_border(self):
@@ -384,6 +422,58 @@ class Marking2DTab(QWidget):
             except Exception as e:
                 QMessageBox.critical(self, "Lỗi Xuất File", f"Lỗi:\n{e}")
 
+    def _update_laser_frequency(self):
+        freq = self.spin_freq.value()
+        width = self.spin_pulse_width.value()
+        try:
+            if hasattr(self.controller, "set_laser_frequency"):
+                self.controller.set_laser_frequency(freq, width)
+            else:
+                period = 1000.0 / freq
+                self.controller.set_oscillator(3, period, width)
+        except Exception:
+            pass
+
+    def test_emission_1s(self):
+        """Kích hoạt phát xung test 1 giây theo đúng sơ đồ chân Fiber Laser."""
+        reply = QMessageBox.question(
+            self, "Xác Nhận Test Bắn Tia 1 Giây",
+            "CẢNH BÁO AN TOÀN:\n"
+            "Chức năng này sẽ BẬT ngõ ra Laser Gate (IO6 - Chân 6/19) và xung Sync (IO7 - Chân 7/20) trong 1.0 giây!\n\n"
+            "Bạn đã đeo kính bảo hộ laser và hướng đầu quét vào vật liệu chịu nhiệt chưa?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            self.btn_test_emission.setEnabled(False)
+            self.btn_test_emission.setText("⏳ ĐANG PHÁT TIA TEST (1s)...")
+            if hasattr(self.controller, "test_laser_emission"):
+                self.controller.test_laser_emission(
+                    duration_s=1.0,
+                    frequency_khz=self.spin_freq.value(),
+                    pulse_width_us=self.spin_pulse_width.value()
+                )
+            else:
+                self.controller.send_latch_pulse(pin_bit=4)
+                mask = (1 << 5) | (1 << 6)
+                self.controller.set_io(value=mask, mask=mask)
+                import time
+                time.sleep(1.0)
+                self.controller.set_io(value=0, mask=mask)
+
+            QMessageBox.information(
+                self, "Hoàn Tất Test",
+                "Đã phát xung mở tia thành công trong 1 giây!\n"
+                "Tín hiệu đã được truyền qua MAX485 tới Pin 19 (Gate) và Pin 20 (Sync) của nguồn Laser."
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Lỗi Phát Tia", f"Lỗi:\n{e}")
+        finally:
+            self.btn_test_emission.setEnabled(True)
+            self.btn_test_emission.setText("⚡ THỬ BẮN TIA LASER 1 GIÂY (TEST EMISSION 1s)")
+
     def get_job_parameters(self) -> Dict[str, Any]:
         """Returns parameters needed by MarkWorker."""
         return {
@@ -394,5 +484,7 @@ class Marking2DTab(QWidget):
             "passes": self.spin_passes.value(),
             "scale": self.spin_scale.value(),
             "offset_x": self.spin_offset_x.value(),
-            "offset_y": self.spin_offset_y.value()
+            "offset_y": self.spin_offset_y.value(),
+            "frequency_khz": self.spin_freq.value(),
+            "pulse_width_us": self.spin_pulse_width.value()
         }
