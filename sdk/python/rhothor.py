@@ -511,7 +511,7 @@ class RhothorController:
 
     # --- Digital I/O & Laser Latch Controls ---
 
-    def set_io(self, value: int, mask: int = 0xFF):
+    def set_io(self, value: int, mask: int = 0x7F):
         """Sets digital output pins using bit mask."""
         if self.simulate:
             if hasattr(self.sim, "set_io"):
@@ -519,7 +519,50 @@ class RhothorController:
             return
         res = self.native.dll.rtSetIO(ctypes.c_long(value), ctypes.c_long(mask))
         if res != ERR_OK:
+            # If rejected because no list buffer is open, execute inside a quick list transaction
+            if not getattr(self, "_in_list", False):
+                try:
+                    self.list_open(1)
+                    res2 = self.native.dll.rtSetIO(ctypes.c_long(value), ctypes.c_long(mask))
+                    self.list_close()
+                    if res2 == ERR_OK:
+                        return
+                except Exception:
+                    pass
             raise RhothorError(res, f"rtSetIO({value}, {mask})")
+
+    def set_io_port(self, port_nr: int, state: bool):
+        """
+        Sets the output state of a single digital I/O port (IO1 to IO7).
+        port_nr: 1 to 7 (corresponds to bit 0 to bit 6 on X7 connector:
+          1: IO1 (Pins 1/14)
+          2: IO2 (Pins 2/15)
+          3: IO3 (Pins 3/16)
+          4: IO4 (Pins 4/17)
+          5: IO5 (Pins 5/18)
+          6: IO6 (Pins 6/19)
+          7: IO7 (Pins 7/20)
+        state: True for HIGH, False for LOW.
+        """
+        if not (1 <= port_nr <= 7):
+            raise ValueError(f"port_nr must be between 1 and 7, got {port_nr}")
+        bit = port_nr - 1
+        mask = 1 << bit
+        val = mask if state else 0
+        self.set_io(value=val, mask=mask)
+
+    def set_all_io_ports(self, state: bool):
+        """Sets all 7 digital I/O ports (IO1 to IO7) to HIGH or LOW."""
+        mask = 0x7F  # 7 bits for IO1..IO7
+        val = 0x7F if state else 0
+        self.set_io(value=val, mask=mask)
+
+    def get_io_ports(self) -> dict:
+        """
+        Returns the states of all 7 digital I/O ports as a dict: {1: bool, ..., 7: bool}.
+        """
+        val = self.get_io()
+        return {port: bool(val & (1 << (port - 1))) for port in range(1, 8)}
 
     def get_io(self) -> int:
         """Reads 8-bit digital input pins."""
@@ -542,9 +585,9 @@ class RhothorController:
         if res != ERR_OK:
             raise RhothorError(res, f"rtWaitIO({value}, {mask})")
 
-    def send_latch_pulse(self, pin_bit: int = 0):
+    def send_latch_pulse(self, pin_bit: int = 4):
         """
-        Sends a latch pulse on the designated digital I/O pin (default bit 0 / IO5 / Latch pin).
+        Sends a latch pulse on the designated digital I/O pin (default bit 4 / IO5 / Pins 5/18 / Latch pin).
         Pulses HIGH -> brief delay -> LOW (or LOW -> HIGH -> LOW) to latch power setting on Fiber Laser.
         """
         import time

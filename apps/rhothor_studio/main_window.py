@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self, serial: int = 4281, name: str = "LPKF", parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Rhothor Laser Studio v1.2.0 - LPKF Galvo Controller")
+        self.setWindowTitle("Rhothor Laser Studio v1.2.1 - LPKF Galvo Controller")
         self.resize(1340, 840)
         self.setMinimumSize(1024, 700)
 

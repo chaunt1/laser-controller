@@ -42,7 +42,7 @@ jobs:
       - name: Package Windows Release Archive
         shell: pwsh
         run: |
-          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.0" }
+          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.1" }
           $ReleaseFolder = "RhothorStudio-$Tag-windows-x64"
           New-Item -ItemType Directory -Force -Path $ReleaseFolder
           Copy-Item -Path "dist\RhothorStudio.exe" -Destination $ReleaseFolder
@@ -116,33 +116,35 @@ jobs:
         with:
           files: |
             RhothorStudio-*-windows-x64.zip
-          name: Release ${{ github.ref_name || 'v1.2.0' }}
+          name: Release ${{ github.ref_name || 'v1.2.1' }}
           draft: false
           prerelease: false
           generate_release_notes: true
           body: |
-            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.0' }}
+            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.1' }}
             
             Phần mềm máy tính điều khiển và chẩn đoán đầu quét chùm tia laser **Newson Rhothor™ RT-CU** (hệ máy LPKF).
             **Publisher:** chaunt <chaunt.dev@gmail.com>
 
             ### 📦 Bản phát hành tải về (Windows):
-            * **`RhothorStudio-${{ github.ref_name || 'v1.2.0' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
+            * **`RhothorStudio-${{ github.ref_name || 'v1.2.1' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
               - Không cần cài Python hay bất kỳ thư viện ngoài nào.
-              - Đã giải quyết triệt để lỗi DSP buffer `rtListOpen` [13] và tự động ép trần an toàn tốc độ `rtSetJumpSpeed` theo `MaxSpeed` (2000 mm/s).
               - Mặc định tuyệt đối thư viện driver chuẩn `v7.3/v7.5 LPKF Legacy Native` (`rhothor.dll`).
+              - Đã giải quyết triệt để lỗi DSP buffer `rtListOpen` [13] và tự động ép trần an toàn tốc độ `rtSetJumpSpeed` theo `MaxSpeed` (2000 mm/s).
               - Chỉ cần giải nén và nhấp đúp file **`RhothorStudio.exe`** để chạy ngay.
 
-            ### 🚀 Tính năng mới trong bản phát hành v1.2.0:
-            1. **Ghép Nối Nguồn Fiber Laser Công Nghiệp Trực Tiếp (Direct DB-25 Fiber Adapter)**:
-               - Hỗ trợ kết nối đồng bộ trực tiếp với các dòng nguồn Fiber phổ biến (Raycus, JPT, Max Photonics, IPG) không cần card EzCad trung gian.
-               - Tích hợp chuẩn giao tiếp vi sai RS-485 sang TTL logic 5V cho các tín hiệu xung then chốt: **Emission Gate** (Pin 19), **Sync/PRR** (Pin 20), và **Latch Pulse** (Pin 9).
-            2. **Hỗ Trợ Xung Chốt Dữ Liệu Công Suất (Pin 9 Latch Pulse Triggering)**:
-               - Tự động phát xung Latch chốt giá trị thanh ghi công suất 8-bit ($D_0 \dots D_7$) vào bộ đệm của nguồn Fiber Laser trước mỗi chu trình khắc.
-               - Bổ sung nút bấm phát xung Latch thủ công trên Tab I/O phục vụ kiểm tra chẩn đoán thực nghiệm.
-            3. **Trình Tra Cứu & Hiển Thị Sơ Đồ Đấu Nối Trực Quan (Interactive Wiring Visualizer)**:
-               - Cửa sổ trực quan tích hợp ngay trong ứng dụng với bảng gán chân chi tiết, sơ đồ nguyên lý mạch chuyển đổi RS-485 (MAX485/SN75176) và lưu ý chống chập cháy điện áp 12V.
-            4. **Mở Rộng Thư Viện Lệnh Digital I/O SDK**:
-               - Cung cấp đầy đủ các hàm điều khiển I/O phần cứng thời gian thực: `set_io()`, `get_io()`, `wait_io()`, `send_latch_pulse()` hỗ trợ tự động hóa dây chuyền CNC.
-            5. **Kế Thừa Đầy Đủ Bộ Đọc Bản Vẽ Toàn Năng (v1.1.1)**:
-               - Hỗ trợ toàn diện CAD Vector (`.DXF`, `.SVG`, `.AI`, `.PLT`), Dự án Laser (`.LBRN`/`.LBRN2`, `.EZD`/`.EZ3`) & Khắc ảnh Shading (`.PNG`, `.JPG`, `.BMP`).
+            ### 🚀 Tính năng mới trong bản phát hành v1.2.1:
+            1. **Chế Độ Test Tự Động Bật/Tắt Tuần Tự Từng Cặp Chân (Auto Step Port Tester)**:
+               - Cho phép bật lần lượt từng cặp chân tín hiệu vi sai RS-485 từ **IO1 (Chân 1/14)** đến **IO7 (Chân 7/20)** trong khoảng thời gian tùy chọn (mặc định 5.0 giây/cổng).
+               - Tích hợp thanh đếm ngược tiến trình thời gian thực, bảng hướng dẫn cắm que đo VOM chi tiết cho từng cổng (đo điện áp vi sai que Đỏ vào IO+, que Đen vào IO- để kiểm tra mức điện áp thực xuất +2.5V ~ +4.5V).
+               - Hỗ trợ nút Chuyển Cổng Tiếp Theo (Next Port) và Dừng khẩn cấp (Stop) an toàn.
+            2. **Bảng Điều Khiển & Giám Sát Thủ Công 7 Cổng I/O X7 Hoàn Thiện**:
+               - Cung cấp nút gạt bật/tắt độc lập cho từng cặp chân IO1 đến IO7, nút Bật Tất Cả (All On) và Tắt Tất Cả (All Off) phục vụ kiểm tra thông mạch và đo đạc phần cứng.
+               - Cửa sổ hướng dẫn đo VOM tích hợp sẵn trong ứng dụng.
+            3. **Công Cụ Dòng Lệnh Độc Lập `tools/test_io_ports.py`**:
+               - Script kiểm tra chân I/O chạy trực tiếp từ terminal độc lập không phụ thuộc GUI, hỗ trợ countdown visualizer và kiểm tra cổng đơn lẻ hoặc chu kỳ tự động.
+            4. **Đồng Bộ Nguồn Fiber Laser Công Nghiệp & Xung Chốt Công Suất Pin 9 (v1.2.0)**:
+               - Tự động phát xung Latch chốt giá trị thanh ghi công suất $D_0 \dots D_7$ trước mỗi nét khắc laser.
+               - Sơ đồ đấu nối chuyển đổi RS-485 sang TTL logic 5V bằng MAX485 cho nguồn Raycus/JPT/Max/IPG.
+            5. **Bộ Đọc Bản Vẽ CNC Toàn Năng**:
+               - Hỗ trợ toàn diện Vector CAD (`.DXF`, `.SVG`, `.AI`, `.PLT`), Dự án Laser (`.LBRN`/`.LBRN2`, `.EZD`/`.EZ3`) & Khắc ảnh Shading (`.PNG`, `.JPG`, `.BMP`).

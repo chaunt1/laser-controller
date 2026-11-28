@@ -103,6 +103,11 @@ def run_cli_diagnostics(args):
             galvo.list_close()
             print("[+] Motion Test Completed Successfully.")
 
+        if getattr(args, "test_io", False):
+            from tools.test_io_ports import run_auto_step_test
+            step_time = getattr(args, "step_time", 5.0)
+            run_auto_step_test(galvo, step_time=step_time, loop=False)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Rhothor Galvo Hardware Diagnostics & Testing Tool")
@@ -112,10 +117,12 @@ def main():
     parser.add_argument("--info", "-i", action="store_true", help="Display hardware status and exit")
     parser.add_argument("--selftest", action="store_true", help="Execute complete automated self-test")
     parser.add_argument("--test", "-t", type=str, choices=["origin", "box", "cross", "circle"], help="Run test pattern")
+    parser.add_argument("--test-io", action="store_true", help="Test digital I/O ports 1/14 to 7/20 sequentially (5s each)")
+    parser.add_argument("--step-time", type=float, default=5.0, help="Step time in seconds for --test-io (default: 5.0)")
     parser.add_argument("--gui", "-g", action="store_true", help="Launch interactive GUI test workstation")
     args = parser.parse_args()
 
-    if args.info or args.selftest or args.test:
+    if args.info or args.selftest or args.test or args.test_io:
         run_cli_diagnostics(args)
     else:
         # Default: Launch GUI application with Test Suite tab in front

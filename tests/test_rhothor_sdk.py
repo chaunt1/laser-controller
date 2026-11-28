@@ -107,6 +107,25 @@ class TestRhothorSDK(unittest.TestCase):
         self.galvo.send_latch_pulse(pin_bit=0)
         self.assertEqual(self.galvo.get_io(), 0x54)
 
+    def test_individual_io_ports(self):
+        # Test set_io_port for each of the 7 ports
+        self.galvo.set_all_io_ports(False)
+        self.assertEqual(self.galvo.get_io(), 0x00)
+
+        for port in range(1, 8):
+            self.galvo.set_io_port(port, True)
+            self.assertEqual(self.galvo.get_io(), 1 << (port - 1))
+            ports_state = self.galvo.get_io_ports()
+            self.assertTrue(ports_state[port])
+            self.galvo.set_io_port(port, False)
+            self.assertEqual(self.galvo.get_io(), 0x00)
+
+        # Test set_all_io_ports
+        self.galvo.set_all_io_ports(True)
+        self.assertEqual(self.galvo.get_io() & 0x7F, 0x7F)
+        self.galvo.set_all_io_ports(False)
+        self.assertEqual(self.galvo.get_io() & 0x7F, 0x00)
+
 
 if __name__ == "__main__":
     unittest.main()
