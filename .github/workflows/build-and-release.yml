@@ -42,7 +42,7 @@ jobs:
       - name: Package Windows Release Archive
         shell: pwsh
         run: |
-          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.2" }
+          $Tag = if ($env:GITHUB_REF_NAME) { $env:GITHUB_REF_NAME } else { "v1.2.3" }
           $ReleaseFolder = "RhothorStudio-$Tag-windows-x64"
           New-Item -ItemType Directory -Force -Path $ReleaseFolder
           Copy-Item -Path "dist\RhothorStudio.exe" -Destination $ReleaseFolder
@@ -116,31 +116,35 @@ jobs:
         with:
           files: |
             RhothorStudio-*-windows-x64.zip
-          name: Release ${{ github.ref_name || 'v1.2.2' }}
+          name: Release ${{ github.ref_name || 'v1.2.3' }}
           draft: false
           prerelease: false
           generate_release_notes: true
           body: |
-            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.2' }}
+            ## ⚡ Rhothor Laser Studio ${{ github.ref_name || 'v1.2.3' }}
             
-            Phần mềm máy tính điều khiển và chẩn đoán đầu quét chùm tia laser **Newson Rhothor™ RT-CU** (hệ máy LPKF).
+            Phần mềm máy tính điều khiển và chẩn đoán đầu quét chùm tia laser **Newson Rhothor™ RT-CU** (hỗ trợ mọi model galvo Newson Rhothor).
             **Publisher:** chaunt <chaunt.dev@gmail.com>
 
             ### 📦 Bản phát hành tải về (Windows):
-            * **`RhothorStudio-${{ github.ref_name || 'v1.2.2' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
+            * **`RhothorStudio-${{ github.ref_name || 'v1.2.3' }}-windows-x64.zip`**: Bản thực thi độc lập cho Windows 10 & 11 (64-bit).
               - Không cần cài Python hay bất kỳ thư viện ngoài nào.
               - Mặc định tuyệt đối thư viện driver chuẩn `v7.3/v7.5 LPKF Legacy Native` (`rhothor.dll`).
-              - Đã giải quyết triệt để lỗi DSP buffer `rtListOpen` [13] và tự động ép trần an toàn tốc độ `rtSetJumpSpeed` theo `MaxSpeed` (2000 mm/s).
+              - Đã giải quyết triệt để lỗi DSP buffer `rtListOpen` [13] và tự động ép trần an toàn tốc độ `rtSetJumpSpeed` theo `MaxSpeed`.
               - Chỉ cần giải nén và nhấp đúp file **`RhothorStudio.exe`** để chạy ngay.
 
-            ### 🚀 Tính năng mới trong bản phát hành v1.2.2:
-            1. **Đồng Bộ Phát Tia Hoàn Chỉnh Theo Sơ Đồ Ghép Nối Nguồn Fiber Laser**:
-               - **IO6 (Chân 6/19)** $\rightarrow$ MAX485 #1 $\rightarrow$ **Pin 19 (Emission Gate)**: Bật/tắt phát tia đồng bộ thời gian thực theo từng nét vector `line_to` và tắt khi nhảy `jump_to`.
-               - **IO7 (Chân 7/20)** $\rightarrow$ MAX485 #2 $\rightarrow$ **Pin 20 (Sync / PRR)**: Xuất chuỗi xung tần số cao từ Oscillator 3 (20 kHz – 100 kHz) đồng bộ theo sườn lên của Gate.
-               - **IO5 (Chân 5/18)** $\rightarrow$ MAX485 #3 $\rightarrow$ **Pin 9 (Latch Clock)**: Tự động phát xung Latch chốt công suất 8-bit $D_0 \dots D_7$ vào DAC nội của nguồn laser trước mỗi job khắc.
-            2. **Bổ Sung Nút Bắn Thử Tia Laser 1 Giây (Test Emission 1s)**:
-               - Tích hợp ngay trên Tab 2 (Khắc Nét 2D) và Tab 5 (I/O) cho phép thợ kiểm tra tia laser hoặc đèn báo Emission của nguồn phát trước khi đưa phôi vào máy.
-            3. **Điều Chỉnh Tần Số Xung (PRR) Trực Tiếp Trên Tab Khắc 2D**:
-               - Thêm ô chỉnh tần số xung (10 kHz – 150 kHz, mặc định 50 kHz) và độ rộng xung (0.5 µs – 20 µs) kết nối trực tiếp vào Oscillator 3 phần cứng.
-            4. **Kế Thừa Đầy Đủ Các Tính Năng Trước**:
+            ### 🚀 Tính năng mới trong bản phát hành v1.2.3:
+            1. **Tự Động Nhận Diện Thiết Bị Linh Hoạt (Flexible Hardware Auto-Discovery)**:
+               - Giải quyết triệt để lỗi `[5] Hardware not responding` khi cắm thiết bị khác có Serial Number khác (ví dụ: SN 5604 thay vì 4281).
+               - Tích hợp hàm API Newson `rtGetFreeDevList` quét toàn bộ thiết bị Rhothor đang cắm qua cổng USB.
+               - Hỗ trợ chế độ kết nối tự động khi chỉ có 1 thiết bị gắn máy tính (bỏ qua `rtSelectDevice` theo mục 5.5 Rhothor User Manual).
+               - Cơ chế **Auto-Fallback**: Nếu người dùng nhấn kết nối với Serial cũ không khớp, phần mềm tự bắt lỗi, tự động quét USB, kết nối ngay với thiết bị mới đang cắm và tự động cập nhật lại số Serial + thông số kinematics lên giao diện.
+            2. **Bổ Sung Nút "🔍 DÒ TÌM (SCAN)" Trên Tab Kết Nối**:
+               - Nhấn nút để dò tìm tức thì các bo mạch Rhothor kết nối qua USB.
+               - Ô Serial Number cho phép để trống (Auto-Detect) để phần mềm tự chọn.
+            3. **Đồng Bộ Phát Tia Hoàn Chỉnh Theo Sơ Đồ Ghép Nối Nguồn Fiber Laser (từ v1.2.2)**:
+               - **IO6 (Chân 6/19)** $\rightarrow$ MAX485 #1 $\rightarrow$ **Pin 19 (Emission Gate)**.
+               - **IO7 (Chân 7/20)** $\rightarrow$ MAX485 #2 $\rightarrow$ **Pin 20 (Sync / PRR)**.
+               - **IO5 (Chân 5/18)** $\rightarrow$ MAX485 #3 $\rightarrow$ **Pin 9 (Latch Clock)**.
+               - Nút **Test Emission 1s** và chỉnh tần số xung PRR 10..150 kHz trên Tab Khắc 2D.
                - Chế độ Test tự động tuần tự 7 cặp chân (Auto Step Tester 1/14 -> 7/20), bộ đọc bản vẽ CAD toàn năng (.DXF, .SVG, .AI, .PLT, .LBRN, .EZD) và khắc ảnh chân dung Shading.

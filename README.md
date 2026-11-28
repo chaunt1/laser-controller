@@ -1,14 +1,16 @@
 # Rhothor™ Laser Galvo Deflection Controller & SDK
 
 [![GitHub Release](https://img.shields.io/github/v/release/chaunt1/laser-controller?color=00d2ff&logo=github)](https://github.com/chaunt1/laser-controller/releases/latest)
-[![Windows Build](https://img.shields.io/badge/Windows%20App-RhothorStudio.exe%20(x64)-00c853?logo=windows)](https://github.com/chaunt1/laser-controller/releases/download/v1.2.2/RhothorStudio-v1.2.2-windows-x64.zip)
+[![Windows Build](https://img.shields.io/badge/Windows%20App-RhothorStudio.exe%20(x64)-00c853?logo=windows)](https://github.com/chaunt1/laser-controller/releases/download/v1.2.3/RhothorStudio-v1.2.3-windows-x64.zip)
 [![Publisher](https://img.shields.io/badge/Publisher-chaunt%20%3Cchaunt.dev%40gmail.com%3E-blue)](mailto:chaunt.dev@gmail.com)
 
-Dự án phần mềm điều khiển, chẩn đoán và phát triển ứng dụng cho hệ thống quét chùm tia laser **Newson Rhothor™ 2D & 3D** (tương thích máy **LPKF Laser & Electronics**).
+Dự án phần mềm điều khiển, chẩn đoán và phát triển ứng dụng cho hệ thống quét chùm tia laser **Newson Rhothor™ 2D & 3D** (hỗ trợ toàn diện mọi đầu galvo Newson Rhothor, tương thích LPKF Laser & Electronics).
 
 > [!TIP]
-> **TẢI VỀ ỨNG DỤNG BẢN WINDOWS (.EXE) SẴN DÙNG (v1.2.2)**:
-> * 🪟 **[Tải RhothorStudio-v1.2.2-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.2.2/RhothorStudio-v1.2.2-windows-x64.zip)** - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
+> **TẢI VỀ ỨNG DỤNG BẢN WINDOWS (.EXE) SẴN DÙNG (v1.2.3)**:
+> * 🪟 **[Tải RhothorStudio-v1.2.3-windows-x64.zip](https://github.com/chaunt1/laser-controller/releases/download/v1.2.3/RhothorStudio-v1.2.3-windows-x64.zip)** - Chạy trực tiếp trên Windows 10/11 64-bit không cần cài đặt Python.
+> * **Tự động nhận diện thiết bị linh hoạt (Flexible Hardware Auto-Discovery):** Tự động phát hiện bất kỳ đầu quét Newson Rhothor nào cắm qua USB (SN 4281, SN 5604 hay bất kỳ thiết bị mới nào) mà không bị kẹt lỗi `[5] Hardware not responding`.
+> * **Nút Quét Dò Tìm "🔍 DÒ TÌM (SCAN)":** Tự động quét và liệt kê danh sách bo mạch Rhothor kết nối trên cổng USB qua `rtGetFreeDevList`.
 > * **Đồng bộ phát tia 3 kênh Fiber Laser (Sơ đồ X7 -> DB-25):** IO6 (Pin 6/19) = Gate mở tia (Pin 19), IO7 (Pin 7/20) = Sync/PRR 50kHz (Pin 20), IO5 (Pin 5/18) = Latch chốt công suất (Pin 9).
 > * **Nút Thử Bắn Tia Laser 1s (Test Emission 1s):** Kiểm tra tia laser và đồng bộ phần cứng trước khi khắc.
 > * **Bộ Test Tự Động Bật/Tắt Tuần Tự (Auto Step Tester):** Bật lần lượt từ IO1 (1/14) đến IO7 (7/20) trong 5s kèm thanh đếm ngược và hướng dẫn que đo VOM.

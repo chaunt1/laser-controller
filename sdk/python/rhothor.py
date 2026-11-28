@@ -217,32 +217,109 @@ class RhothorController:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disconnect()
 
-    def connect(self):
-        """Initializes the controller and selects the target device."""
+    def get_available_devices(self) -> List[int]:
+        """
+        Queries all connected Rhothor controllers on USB via rtGetFreeDevList.
+        Returns a list of detected hardware serial numbers.
+        """
         if self.simulate:
-            if self.serial_nr:
+            if self.sim:
+                _, dev_list = self.sim.get_free_dev_list()
+                return dev_list
+            return [self.serial_nr or 4281]
+
+        if not self.native or not self.native.is_loaded:
+            return []
+
+        try:
+            max_devs = 32
+            serials_arr = (ctypes.c_long * max_devs)()
+            size = ctypes.c_long(max_devs)
+            res = self.native.dll.rtGetFreeDevList(serials_arr, ctypes.byref(size))
+            if res == ERR_OK and size.value > 0:
+                found = [int(serials_arr[i]) for i in range(size.value) if serials_arr[i] > 0]
+                return found
+        except Exception as e:
+            print(f"Notice: rtGetFreeDevList error: {e}")
+        return []
+
+    def connect(self, serial_nr: Optional[int] = None):
+        """
+        Initializes the controller and selects the target device.
+        Supports intelligent auto-discovery:
+        - If serial_nr is None/0 or not found, automatically discovers connected Rhothor devices
+          via rtGetFreeDevList or attaches to the single connected USB unit.
+        - If a specified serial_nr fails (e.g. error 5 Hardware Not Responding), automatically
+          falls back to detecting any connected device, preventing strict-serial lockout.
+        """
+        if serial_nr is not None:
+            self.serial_nr = serial_nr
+
+        if self.simulate:
+            if self.serial_nr and self.serial_nr > 0:
                 self.sim.select_device(self.serial_nr)
             res = self.sim.initialise()
             try:
+                self.serial_nr = self.sim.serial_nr
                 self.max_speed = float(self.get_max_speed())
             except Exception:
                 pass
             self.is_connected = True
             return
 
-        # Note: According to the Newson Rhothor Manual (section 5.3):
-        # rtSelectDevice MUST be called PRIOR to rtInitialise when addressing a specific device.
-        # Calling rtSelectDevice after rtInitialise resets the internal DLL state machine to -1,
-        # which causes rtListOpen to immediately return ERR_DATA (13).
-        if self.serial_nr is not None and self.serial_nr > 0:
-            try:
-                res = self.native.dll.rtSelectDevice(ctypes.c_long(self.serial_nr))
-            except Exception as e:
-                print(f"Notice: rtSelectDevice({self.serial_nr}) call: {e}")
+        init_ok = False
+        last_error = ERR_HARDWARE
+        target_serial = self.serial_nr
 
-        res = self.native.dll.rtInitialise()
-        if res != ERR_OK:
-            raise RhothorError(res, "rtInitialise")
+        # Step 1: If serial_nr is explicitly specified and > 0, attempt direct connection first
+        if target_serial is not None and target_serial > 0:
+            try:
+                self.native.dll.rtSelectDevice(ctypes.c_long(target_serial))
+                res = self.native.dll.rtInitialise()
+                if res == ERR_OK:
+                    init_ok = True
+                else:
+                    last_error = res
+                    print(f"Notice: rtInitialise with serial #{target_serial} returned code {res}. Attempting auto-detection fallback...")
+            except Exception as e:
+                print(f"Notice: Exception connecting to serial #{target_serial}: {e}")
+
+        # Step 2: Auto-detection fallback if serial was not specified, was 0, or failed above
+        if not init_ok:
+            # 2a. Query free devices via rtGetFreeDevList
+            available = self.get_available_devices()
+            if available:
+                print(f"Auto-discovered Rhothor devices on USB: {available}")
+                for dev_sn in available:
+                    try:
+                        self.native.dll.rtSelectDevice(ctypes.c_long(dev_sn))
+                        res = self.native.dll.rtInitialise()
+                        if res == ERR_OK:
+                            self.serial_nr = dev_sn
+                            init_ok = True
+                            print(f"Successfully connected to auto-detected Rhothor #{dev_sn}")
+                            break
+                        else:
+                            last_error = res
+                    except Exception:
+                        continue
+
+            # 2b. If still not initialized, attempt single-device default initialization
+            # As per Newson manual: "If there is just one system connected to the computer
+            # this method [rtSelectDevice] may be omitted."
+            if not init_ok:
+                try:
+                    res = self.native.dll.rtInitialise()
+                    if res == ERR_OK:
+                        init_ok = True
+                        print("Successfully connected via single-device default initialization.")
+                    else:
+                        last_error = res
+                except Exception as e:
+                    last_error = ERR_HARDWARE
+
+        if not init_ok:
+            raise RhothorError(last_error, "rtInitialise")
 
         # Allow DSP and USB subsystem to settle
         time.sleep(0.05)

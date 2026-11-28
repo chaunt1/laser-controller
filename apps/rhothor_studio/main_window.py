@@ -28,9 +28,9 @@ from .tabs.tab_io_trigger import IOTriggerTab
 class MainWindow(QMainWindow):
     """Primary application window for Rhothor Laser Studio."""
 
-    def __init__(self, serial: int = 4281, name: str = "LPKF", parent=None):
+    def __init__(self, serial: Optional[int] = None, name: str = "Rhothor", parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Rhothor Laser Studio v1.2.2 - LPKF Galvo Controller")
+        self.setWindowTitle("Rhothor Laser Studio v1.2.3 - Galvo Controller")
         self.resize(1340, 840)
         self.setMinimumSize(1024, 700)
 
@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
-        # Initialize shared hardware controller
+        # Initialize shared hardware controller (auto-detect if serial is None)
         self.controller = RhothorController(serial_nr=serial, name=name)
         try:
             self.controller.connect()
@@ -149,18 +149,18 @@ class MainWindow(QMainWindow):
         # 1. Top Bar
         top_bar = QHBoxLayout()
 
-        brand_lbl = QLabel("⚡ RHOTHOR LASER STUDIO v1.1.0")
+        brand_lbl = QLabel("⚡ RHOTHOR LASER STUDIO v1.2.3")
         brand_lbl.setStyleSheet("font-size: 16px; font-weight: 900; color: #00d2ff; letter-spacing: 0.5px;")
         top_bar.addWidget(brand_lbl)
 
-        sub_lbl = QLabel("LPKF #4281 | Publisher: chaunt <chaunt.dev@gmail.com>")
-        sub_lbl.setStyleSheet("color: #64748b; font-size: 11px; padding-left: 10px;")
-        top_bar.addWidget(sub_lbl)
+        self.sub_lbl = QLabel(f"{self.controller.name} #{self.controller.serial_nr or 'Auto'} | Publisher: chaunt <chaunt.dev@gmail.com>")
+        self.sub_lbl.setStyleSheet("color: #64748b; font-size: 11px; padding-left: 10px;")
+        top_bar.addWidget(self.sub_lbl)
 
         top_bar.addStretch()
 
-        self.pill_status = QLabel("ONLINE (LPKF #4281)")
-        self._update_status_pill(True, "SIMULATION" if self.controller.simulate else "HARDWARE")
+        self.pill_status = QLabel("CONNECTING...")
+        self._update_status_pill(self.controller.is_connected, "SIMULATION" if self.controller.simulate else "HARDWARE")
         top_bar.addWidget(self.pill_status)
 
         main_layout.addLayout(top_bar)
@@ -324,6 +324,9 @@ class MainWindow(QMainWindow):
     def _update_status_pill(self, is_connected: bool, mode: str):
         if is_connected:
             self.pill_status.setText(f"ONLINE: {self.controller.name} #{self.controller.serial_nr} ({mode})")
+            if hasattr(self, "sub_lbl"):
+                self.sub_lbl.setText(f"{self.controller.name} #{self.controller.serial_nr} | Publisher: chaunt <chaunt.dev@gmail.com>")
+            self.setWindowTitle(f"Rhothor Laser Studio v1.2.3 - {self.controller.name} #{self.controller.serial_nr} Galvo Controller")
             self.pill_status.setStyleSheet("""
                 background-color: rgba(0, 230, 118, 0.15);
                 color: #00e676;

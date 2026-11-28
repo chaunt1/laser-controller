@@ -139,6 +139,26 @@ class TestRhothorSDK(unittest.TestCase):
         # All outputs must be safe OFF after emission test
         self.assertEqual(self.galvo.get_io() & 0x7F, 0x00)
 
+    def test_auto_device_discovery(self):
+        # Test get_available_devices
+        devs = self.galvo.get_available_devices()
+        self.assertIsInstance(devs, list)
+        self.assertIn(4281, devs)
+
+        # Test connect with serial_nr=None (auto-detection)
+        auto_galvo = RhothorController(serial_nr=None, name="AutoDevice", simulate=True)
+        auto_galvo.connect()
+        self.assertTrue(auto_galvo.is_connected)
+        self.assertEqual(auto_galvo.serial_nr, 4281)
+        auto_galvo.disconnect()
+
+        # Test connect with a different hardware serial (e.g. 5604)
+        new_galvo = RhothorController(serial_nr=5604, name="Newson5604", simulate=True)
+        new_galvo.connect()
+        self.assertTrue(new_galvo.is_connected)
+        self.assertEqual(new_galvo.serial_nr, 5604)
+        new_galvo.disconnect()
+
 
 if __name__ == "__main__":
     unittest.main()

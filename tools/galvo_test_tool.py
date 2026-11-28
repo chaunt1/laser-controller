@@ -111,8 +111,8 @@ def run_cli_diagnostics(args):
 
 def main():
     parser = argparse.ArgumentParser(description="Rhothor Galvo Hardware Diagnostics & Testing Tool")
-    parser.add_argument("--serial", type=int, default=4281, help="Hardware serial number (default: 4281)")
-    parser.add_argument("--name", type=str, default="LPKF", help="Device identifier name (default: LPKF)")
+    parser.add_argument("--serial", type=int, default=None, help="Hardware serial number (default: auto-detect)")
+    parser.add_argument("--name", type=str, default="Rhothor", help="Device identifier name (default: Rhothor)")
     parser.add_argument("--simulate", "-s", action="store_true", default=False, help="Force simulation mode")
     parser.add_argument("--info", "-i", action="store_true", help="Display hardware status and exit")
     parser.add_argument("--selftest", action="store_true", help="Execute complete automated self-test")

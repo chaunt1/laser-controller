@@ -125,6 +125,10 @@ class RhothorSimulator:
         self.total_simulated_time_us = 0.0
         return ERR_OK
 
+    def get_free_dev_list(self) -> Tuple[int, List[int]]:
+        """Returns list of available simulator devices."""
+        return (ERR_OK, [self.serial_nr])
+
     def select_device(self, serial: int) -> int:
         if serial != self.serial_nr and serial != 0:
             return ERR_HARDWARE

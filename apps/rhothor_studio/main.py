@@ -13,13 +13,14 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
+from typing import Optional
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
 
 from apps.rhothor_studio.main_window import MainWindow
 
 
-def run_studio(serial: int = 4281, name: str = "LPKF", initial_file: str = ""):
+def run_studio(serial: Optional[int] = None, name: str = "Rhothor", initial_file: str = ""):
     # Enable high-DPI awareness on Windows 10/11
     if hasattr(Qt, "AA_EnableHighDpiScaling"):
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -43,8 +44,8 @@ def run_studio(serial: int = 4281, name: str = "LPKF", initial_file: str = ""):
 
 def main():
     parser = argparse.ArgumentParser(description="Rhothor Laser Studio - Desktop Galvo Marking Application")
-    parser.add_argument("--serial", type=int, default=4281, help="Hardware serial number (default: 4281)")
-    parser.add_argument("--name", type=str, default="LPKF", help="Hardware device identifier name (default: LPKF)")
+    parser.add_argument("--serial", type=int, default=None, help="Hardware serial number (default: None for auto-detection)")
+    parser.add_argument("--name", type=str, default="Rhothor", help="Hardware device identifier name (default: Rhothor)")
     parser.add_argument("--file", type=str, default="", help="Path to initial DXF/PLT file to load")
     args = parser.parse_args()
 

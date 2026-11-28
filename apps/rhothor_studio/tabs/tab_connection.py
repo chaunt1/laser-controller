@@ -71,12 +71,30 @@ class ConnectionTab(QWidget):
         conn_layout.setSpacing(8)
 
         conn_layout.addWidget(QLabel("Serial Number:"), 0, 0)
-        self.edit_serial = QLineEdit(str(self.controller.serial_nr or 4281))
-        self.edit_serial.setPlaceholderText("4281 (LPKF)")
-        conn_layout.addWidget(self.edit_serial, 0, 1)
+        serial_box = QHBoxLayout()
+        self.edit_serial = QLineEdit(str(self.controller.serial_nr or ""))
+        self.edit_serial.setPlaceholderText("Tự động nhận diện (Auto-Detect)")
+        serial_box.addWidget(self.edit_serial, 3)
+
+        self.btn_scan = QPushButton("🔍 DÒ TÌM (SCAN)")
+        self.btn_scan.setToolTip("Quét tìm tất cả thiết bị Rhothor đang cắm qua cổng USB (rtGetFreeDevList)")
+        self.btn_scan.setStyleSheet("""
+            QPushButton {
+                background-color: #0284c7;
+                color: white;
+                font-weight: bold;
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 11px;
+            }
+            QPushButton:hover { background-color: #0ea5e9; }
+        """)
+        self.btn_scan.clicked.connect(self.auto_scan_devices)
+        serial_box.addWidget(self.btn_scan, 2)
+        conn_layout.addLayout(serial_box, 0, 1)
 
         conn_layout.addWidget(QLabel("Tên thiết bị:"), 0, 2)
-        self.edit_name = QLineEdit(self.controller.name or "LPKF")
+        self.edit_name = QLineEdit(self.controller.name or "Rhothor Galvo")
         conn_layout.addWidget(self.edit_name, 0, 3)
 
         # Connection Buttons Row
@@ -371,8 +389,36 @@ class ConnectionTab(QWidget):
         except ValueError:
             self.jog_step = 1.0
 
+    def auto_scan_devices(self):
+        """Scans USB ports for connected Rhothor galvo devices."""
+        self.log_message.emit("Đang quét tìm thiết bị Rhothor trên cổng USB...")
+        try:
+            devs = self.controller.get_available_devices()
+            if devs:
+                self.edit_serial.setText(str(devs[0]))
+                dev_str = ", ".join([f"SN #{d}" for d in devs])
+                msg = f"Đã tìm thấy {len(devs)} thiết bị Rhothor trên USB: {dev_str}"
+                self.log_message.emit(f"✅ {msg}")
+                QMessageBox.information(
+                    self,
+                    "Tìm Thấy Thiết Bị Rhothor",
+                    f"✅ {msg}\n\nĐã tự động điền Serial #{devs[0]} vào cấu hình kết nối."
+                )
+            else:
+                self.log_message.emit("ℹ️ Không tìm thấy danh sách qua rtGetFreeDevList. Khi bấm Kết Nối, hệ thống sẽ tự động bắt thiết bị duy nhất cắm vào máy tính.")
+                QMessageBox.information(
+                    self,
+                    "Chế Độ Tự Động Kết Nối",
+                    "Không tìm thấy danh sách đa thiết bị qua rtGetFreeDevList.\n\n"
+                    "💡 Bạn có thể để trống ô Serial Number (hoặc để Auto) rồi nhấn 'KẾT NỐI THIẾT BỊ', "
+                    "hệ thống sẽ tự động bắt thiết bị Newson Rhothor đang cắm vào máy tính."
+                )
+        except Exception as e:
+            self.log_message.emit(f"Lỗi khi quét thiết bị: {e}")
+            QMessageBox.warning(self, "Lỗi Quét Thiết Bị", f"Không thể quét thiết bị:\n{e}")
+
     def toggle_connection(self):
-        """Connects or disconnects the controller."""
+        """Connects or disconnects the controller with intelligent auto-discovery."""
         if self.controller.is_connected:
             self.controller.disconnect()
             self.btn_connect.setText("⚡ KẾT NỐI THIẾT BỊ (CONNECT)")
@@ -383,6 +429,7 @@ class ConnectionTab(QWidget):
                     font-weight: bold;
                     padding: 9px;
                     border-radius: 5px;
+                    font-size: 12px;
                 }
                 QPushButton:hover { background-color: #00e676; }
             """)
@@ -390,17 +437,27 @@ class ConnectionTab(QWidget):
             self.connection_changed.emit(False, "OFFLINE")
             self.table_info.setRowCount(0)
         else:
-            try:
-                serial = int(self.edit_serial.text().strip())
-            except ValueError:
-                serial = 4281
+            raw_serial = self.edit_serial.text().strip()
+            serial = None
+            if raw_serial and raw_serial.lower() not in ["auto", "tự động", "0", "none"]:
+                try:
+                    serial = int(raw_serial)
+                except ValueError:
+                    serial = None
 
-            name = self.edit_name.text().strip() or "LPKF"
-            self.controller.serial_nr = serial
+            name = self.edit_name.text().strip() or "Rhothor"
             self.controller.name = name
 
             try:
-                self.controller.connect()
+                self.controller.connect(serial_nr=serial)
+                # Reflect detected hardware serial back to UI
+                actual_sn = getattr(self.controller, "serial_nr", None)
+                if actual_sn:
+                    self.edit_serial.setText(str(actual_sn))
+                    if self.edit_name.text().strip() in ["", "LPKF", "Rhothor"]:
+                        self.edit_name.setText(f"Rhothor #{actual_sn}")
+                        self.controller.name = f"Rhothor #{actual_sn}"
+
                 mode = "SIMULATION" if self.controller.simulate else "HARDWARE"
                 self.btn_connect.setText("🔌 NGẮT KẾT NỐI (DISCONNECT)")
                 self.btn_connect.setStyleSheet("""
@@ -413,11 +470,17 @@ class ConnectionTab(QWidget):
                     }
                     QPushButton:hover { background-color: #ff1744; }
                 """)
-                self.log_message.emit(f"Connected to Rhothor controller #{serial} [{name}] in {mode} mode.")
+                self.log_message.emit(f"Connected to Rhothor controller #{self.controller.serial_nr} [{self.controller.name}] in {mode} mode.")
                 self.connection_changed.emit(True, mode)
                 self.refresh_device_info()
             except Exception as e:
-                QMessageBox.critical(self, "Lỗi Kết Nối", f"Không thể kết nối thiết bị:\n{e}")
+                QMessageBox.critical(
+                    self,
+                    "Lỗi Kết Nối",
+                    f"Không thể kết nối thiết bị:\n{e}\n\n"
+                    "💡 MẸO: Hãy để trống ô Serial Number (Auto-Detect) và bấm lại 'KẾT NỐI THIẾT BỊ', "
+                    "phần mềm sẽ tự động nhận diện thiết bị mới vừa cắm vào cổng USB."
+                )
                 self.log_message.emit(f"Connection failed: {e}")
 
     def refresh_device_info(self):

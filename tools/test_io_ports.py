@@ -123,7 +123,7 @@ def main():
     parser.add_argument("--test-fiber-sync", action="store_true", help="Kiểm tra đồng bộ 3 kênh Fiber Laser (Latch Pin 9 -> Gate Pin 19 + Sync Pin 20)")
     parser.add_argument("--all-on", action="store_true", help="Bật tất cả 7 cổng cùng lúc")
     parser.add_argument("--all-off", action="store_true", help="Tắt tất cả 7 cổng")
-    parser.add_argument("--serial", type=int, default=4281, help="Mã Serial Number của Galvo Rhothor (mặc định: 4281)")
+    parser.add_argument("--serial", type=int, default=None, help="Mã Serial Number của Galvo Rhothor (mặc định: auto-detect)")
     parser.add_argument("--simulate", action="store_true", help="Chạy mô phỏng nếu chưa gắn phần cứng")
 
     args = parser.parse_args()
